@@ -143,10 +143,20 @@ Return JSON only that matches the schema.
   }
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`✅ Server running at http://localhost:${PORT}`);
 });
 
+server.on("error", (err) => {
+  if (err.code === "EADDRINUSE") {
+    console.error(`❌ Port ${PORT} is already in use.`);
+    console.error(`Try: PORT=5177 npm start`);
+    process.exit(1);
+  } else {
+    console.error(err);
+    process.exit(1);
+  }
+});
 
 app.listen(5176, () => {
   console.log("✅ Server running at http://localhost:5176");
