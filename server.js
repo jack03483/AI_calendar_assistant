@@ -105,10 +105,8 @@ Return JSON only that matches the schema.
           strict: true
         }
       }
-      // ✅ IMPORTANT: no "temperature" here (not supported for this model)
     });
 
-    // extract output_text
     let outputText = null;
     for (const item of (response.output || [])) {
       if (item.type === "message") {
@@ -126,7 +124,6 @@ Return JSON only that matches the schema.
       return res.status(500).json({ error: "Model returned invalid JSON", raw: outputText });
     }
 
-    // If user clearly indicates weekdays + "of the year" and model forgot days_of_week, enforce it.
     if (weekdayHints.length && wantsYear && Array.isArray(data.events)) {
       data.events = data.events.map(e => {
         const hasRange = !e.date && e.start_date && e.end_date;
