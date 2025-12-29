@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>2026 Calendar + AI Inbox</title>
+  <style>
+    :root{
+      --bg: #f6f8fc;
+      --card: #ffffff;
+      --text: #0b1220;
+      --muted: rgba(11,18,32,.6);
+      --line: rgba(11,18,32,.12);
+      --blue: #2563eb;
+      --blue2: #1d4ed8;
+      --blueSoft: rgba(37,99,235,.12);
+      --shadow: 0 10px 30px rgba(15, 23, 42, .08);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: radial-gradient(1200px 600px at 20% 0%, rgba(37,99,235,.10), transparent 60%),
+                  radial-gradient(900px 500px at 80% 10%, rgba(29,78,216,.08), transparent 55%),
+                  var(--bg);
+      color: var(--text);
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,.75);
+      backdrop-filter: blur(10px);
+    }
+
+    .topbar {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .brand strong { font-size: 14px; }
+    .brand span { font-size: 12px; color: var(--muted); }
+
+    .wrap {
+      max-width: 1100px;
+      margin: 16px auto 0 auto;
+      padding: 0 16px 120px 16px; /* leave room for composer */
+    }
+
+    /* Month selector */
+    .monthbar {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 8px;
+      margin: 14px 0 14px 0;
+    }
+    .mbtn {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.7);
+      border-radius: 12px;
+      padding: 10px 0;
+      font-size: 12px;
+      cursor: pointer;
+      transition: transform .08s ease, background .2s ease, border-color .2s ease;
+      min-width: 0;
+    }
+    .mbtn:hover { transform: translateY(-1px); border-color: rgba(37,99,235,.35); }
+    .mbtn.active {
+      background: var(--blueSoft);
+      border-color: rgba(37,99,235,.55);
+      color: var(--blue2);
+      font-weight: 600;
+    }
+
+    /* Month card */
+    .monthCard {
+      background: rgba(255,255,255,.85);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .monthHeader {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(to right, rgba(37,99,235,.10), rgba(255,255,255,0));
+    }
+
+    .monthHeader h2 {
+      margin: 0;
+      font-size: 16px;
+      letter-spacing: .2px;
+    }
+
+    .monthHeader .hint {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .dow, .grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 8px;
+      padding: 12px;
+    }
+
+    .dow div {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      user-select: none;
+    }
+
+    /* ✅ Critical: prevent grid from being pushed wide */
+    .grid { width: 100%; }
+
+    .day {
+      border: 1px solid rgba(11,18,32,.08);
+      background: rgba(255,255,255,.9);
+      border-radius: 14px;
+      min-height: 78px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+
+      /* ✅ Critical: allow grid items to shrink */
+      min-width: 0;
+
+      /* ✅ Critical: clip contents so nothing changes column width */
+      overflow: hidden;
+    }
+
+    .day.muted {
+      background: rgba(255,255,255,.55);
+      border-style: dashed;
+      opacity: .55;
+    }
+
+    .num {
+      font-size: 12px;
+      color: rgba(11,18,32,.75);
+      user-select: none;
+    }
+
+    /* ✅ Event pills will NOT change layout */
+    .event {
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(37,99,235,.25);
+      background: rgba(37,99,235,.08);
+      color: rgba(29,78,216,.95);
+
+      /* ✅ Critical: keep on one line and clip */
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      /* ✅ Critical: allow shrink inside flex */
+      min-width: 0;
+    }
+
+    .more {
+      border: 1px solid rgba(11,18,32,.12);
+      background: rgba(11,18,32,.04);
+      color: rgba(11,18,32,.75);
+    }
+
+    /* Composer */
+    .composer {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      z-index: 30;
+      border-top: 1px solid var(--line);
+      background: rgba(255,255,255,.80);
+      backdrop-filter: blur(10px);
+    }
+
+    .composerInner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 12px 16px;
+      display: grid;
+      gap: 10px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 76px;
+      resize: vertical;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(11,18,32,.16);
+      background: rgba(255,255,255,.9);
+      outline: none;
+      font-size: 13px;
+    }
+    textarea:focus {
+      border-color: rgba(37,99,235,.55);
+      box-shadow: 0 0 0 4px rgba(37,99,235,.12);
+    }
+
+    .drop {
+      border: 1.5px dashed rgba(11,18,32,.25);
+      border-radius: 14px;
+      padding: 10px;
+      background: rgba(255,255,255,.65);
+      display: grid;
+      gap: 8px;
+    }
+
+    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+    button {
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(11,18,32,.16);
+      background: rgba(255,255,255,.9);
+      cursor: pointer;
+      font-size: 13px;
+      transition: transform .08s ease, border-color .2s ease, box-shadow .2s ease;
+    }
+    button:hover { transform: translateY(-1px); border-color: rgba(37,99,235,.35); }
+    button:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+    .primary {
+      border-color: rgba(37,99,235,.45);
+      background: linear-gradient(to bottom, rgba(37,99,235,.12), rgba(37,99,235,.06));
+      color: rgba(29,78,216,.95);
+      font-weight: 600;
+    }
+
+    .thumbs { display: flex; gap: 8px; flex-wrap: wrap; }
+    .thumb {
+      width: 72px; height: 72px;
+      border-radius: 14px;
+      border: 1px solid rgba(11,18,32,.14);
+      object-fit: cover;
+      background: #fff;
+    }
+    .status { font-size: 12px; color: rgba(11,18,32,.75); }
+
+    /* Mobile: allow month buttons to wrap more nicely */
+    @media (max-width: 900px) {
+      .monthbar { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    }
+    @media (max-width: 520px) {
+      .monthbar { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .day { min-height: 70px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <div class="brand">
+        <strong>2026 Calendar</strong>
+        <span>Type or drop images below — AI files it into the right date.</span>
+      </div>
+      <div style="font-size:12px;color:var(--muted);">Local • Private (key stays on server)</div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div id="monthbar" class="monthbar"></div>
+
+    <div class="monthCard">
+      <div class="monthHeader">
+        <h2 id="monthTitle"></h2>
+        <div class="hint">Click a month above to switch</div>
+      </div>
+      <div class="dow" id="dow"></div>
+      <div class="grid" id="grid"></div>
+    </div>
+  </div>
+
+  <div class="composer">
+    <div class="composerInner">
+      <textarea id="text" placeholder="Example: 'Trip to Ireland from the 5th of Jan to the 16th'"></textarea>
+
+      <div id="drop" class="drop">
+        <div class="row">
+          <strong>Drop images here</strong>
+          <input id="file" type="file" accept="image/*" multiple />
+          <button id="clear" type="button">Clear images</button>
+        </div>
+        <div id="thumbs" class="thumbs"></div>
+      </div>
+
+      <div class="row">
+        <button id="add" class="primary" type="button">Add to calendar</button>
+        <button id="wipe" type="button" title="Deletes all saved events">Wipe events</button>
+        <span id="status" class="status"></span>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const YEAR = 2026;
+  const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const monthShort = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const dows = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+
+  const monthbarEl = document.getElementById("monthbar");
+  const monthTitleEl = document.getElementById("monthTitle");
+  const dowEl = document.getElementById("dow");
+  const gridEl = document.getElementById("grid");
+
+  const textEl = document.getElementById("text");
+  const dropEl = document.getElementById("drop");
+  const fileEl = document.getElementById("file");
+  const thumbsEl = document.getElementById("thumbs");
+  const addBtn = document.getElementById("add");
+  const clearBtn = document.getElementById("clear");
+  const wipeBtn = document.getElementById("wipe");
+  const statusEl = document.getElementById("status");
+
+  let images = [];
+  let selectedMonth = new Date().getFullYear() === YEAR ? new Date().getMonth() : 0;
+
+  function loadEvents() {
+    try { return JSON.parse(localStorage.getItem("events_2026") || "[]"); }
+    catch { return []; }
+  }
+  function saveEvents(evts) { localStorage.setItem("events_2026", JSON.stringify(evts)); }
+
+  function isoDate(y, m, d) {
+    const mm = String(m + 1).padStart(2,"0");
+    const dd = String(d).padStart(2,"0");
+    return `${y}-${mm}-${dd}`;
+  }
+  function daysInMonth(y, m) { return new Date(y, m + 1, 0).getDate(); }
+  function isIsoDate(s) { return typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s); }
+
+  function normalizeEvents(apiEvents) {
+    const out = [];
+    for (const e of (apiEvents || [])) {
+      const base = {
+        title: String(e.title || "").trim() || "Untitled",
+        details: String(e.details || "").trim(),
+        all_day: !!e.all_day,
+        start_time: e.start_time ?? null,
+        end_time: e.end_time ?? null
+      };
+
+      if (isIsoDate(e.date)) {
+        out.push({ ...base, date: e.date });
+        continue;
+      }
+
+      if (isIsoDate(e.start_date) && isIsoDate(e.end_date)) {
+        const start = new Date(e.start_date + "T00:00:00");
+        const end = new Date(e.end_date + "T00:00:00");
+        if (Number.isNaN(start.valueOf()) || Number.isNaN(end.valueOf()) || start > end) continue;
+
+        for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+          const y = d.getFullYear();
+          const m = String(d.getMonth() + 1).padStart(2, "0");
+          const day = String(d.getDate()).padStart(2, "0");
+          out.push({ ...base, date: `${y}-${m}-${day}` });
+        }
+        continue;
+      }
+
+      out.push({ ...base, date: "2026-01-01", title: "Clarify date", details: base.details || "Couldn't determine a date." });
+    }
+    return out;
+  }
+
+  function setStatus(msg) { statusEl.textContent = msg || ""; }
+
+  function renderMonthBar() {
+    monthbarEl.innerHTML = "";
+    for (let i = 0; i < 12; i++) {
+      const b = document.createElement("button");
+      b.className = "mbtn" + (i === selectedMonth ? " active" : "");
+      b.textContent = monthShort[i];
+      b.addEventListener("click", () => {
+        selectedMonth = i;
+        renderMonthBar();
+        renderMonth(selectedMonth);
+      });
+      monthbarEl.appendChild(b);
+    }
+  }
+
+  function renderDow() {
+    dowEl.innerHTML = "";
+    for (const d of dows) {
+      const el = document.createElement("div");
+      el.textContent = d;
+      dowEl.appendChild(el);
+    }
+  }
+
+  function renderMonth(m) {
+    monthTitleEl.textContent = `${monthNames[m]} ${YEAR}`;
+    gridEl.innerHTML = "";
+
+    const evts = loadEvents();
+    const firstDow = new Date(YEAR, m, 1).getDay();
+    const dim = daysInMonth(YEAR, m);
+
+    // blanks
+    for (let i = 0; i < firstDow; i++) {
+      const blank = document.createElement("div");
+      blank.className = "day muted";
+      gridEl.appendChild(blank);
+    }
+
+    for (let day = 1; day <= dim; day++) {
+      const cell = document.createElement("div");
+      cell.className = "day";
+      const dateKey = isoDate(YEAR, m, day);
+
+      const num = document.createElement("div");
+      num.className = "num";
+      num.textContent = day;
+      cell.appendChild(num);
+
+      const todays = evts.filter(e => e.date === dateKey);
+
+      todays.slice(0, 3).forEach(e => {
+        const pill = document.createElement("div");
+        pill.className = "event";
+        pill.title = (e.details || e.title || "").trim();
+        pill.textContent = e.all_day ? e.title : `${e.start_time || ""} ${e.title}`.trim();
+        cell.appendChild(pill);
+      });
+
+      if (todays.length > 3) {
+        const more = document.createElement("div");
+        more.className = "event more";
+        more.textContent = `+${todays.length - 3} more`;
+        cell.appendChild(more);
+      }
+
+      gridEl.appendChild(cell);
+    }
+  }
+
+  function refreshThumbs() {
+    thumbsEl.innerHTML = "";
+    images.forEach(img => {
+      const el = document.createElement("img");
+      el.src = URL.createObjectURL(img);
+      el.className = "thumb";
+      thumbsEl.appendChild(el);
+    });
+  }
+
+  function addFiles(files) {
+    for (const f of files) {
+      if (f.type && f.type.startsWith("image/")) images.push(f);
+    }
+    refreshThumbs();
+  }
+
+  dropEl.addEventListener("dragover", (e) => { e.preventDefault(); dropEl.style.borderColor = "rgba(37,99,235,.55)"; });
+  dropEl.addEventListener("dragleave", () => { dropEl.style.borderColor = "rgba(11,18,32,.25)"; });
+  dropEl.addEventListener("drop", (e) => {
+    e.preventDefault();
+    dropEl.style.borderColor = "rgba(11,18,32,.25)";
+    addFiles(e.dataTransfer.files);
+  });
+  fileEl.addEventListener("change", () => addFiles(fileEl.files));
+
+  clearBtn.addEventListener("click", () => {
+    images = [];
+    fileEl.value = "";
+    refreshThumbs();
+  });
+
+  wipeBtn.addEventListener("click", () => {
+    saveEvents([]);
+    renderMonth(selectedMonth);
+    setStatus("All events wiped.");
+  });
+
+  addBtn.addEventListener("click", async () => {
+    const text = textEl.value.trim();
+    if (!text && images.length === 0) {
+      setStatus("Type something and/or drop an image first.");
+      return;
+    }
+
+    addBtn.disabled = true;
+    setStatus("Sending to AI…");
+
+    const fd = new FormData();
+    fd.append("text", text);
+    images.forEach(img => fd.append("images", img));
+
+    try {
+      const resp = await fetch("/api/parse", { method: "POST", body: fd });
+      const raw = await resp.text();
+      let data;
+      try { data = JSON.parse(raw); }
+      catch { throw new Error("Server returned non-JSON: " + raw.slice(0, 200)); }
+
+      if (!resp.ok) {
+        throw new Error(typeof data === "string" ? data : JSON.stringify(data, null, 2));
+      }
+
+      const normalized = normalizeEvents(data.events || []);
+      if (normalized.length === 0) {
+        setStatus("AI returned no events. Try rephrasing with a clearer date.");
+      } else {
+        const evts = loadEvents();
+        evts.push(...normalized);
+        saveEvents(evts);
+        renderMonth(selectedMonth);
+        setStatus(`Added ${normalized.length} day-entry(ies).`);
+      }
+
+      textEl.value = "";
+      images = [];
+      fileEl.value = "";
+      refreshThumbs();
+    } catch (err) {
+      setStatus("Error: " + err.message);
+    } finally {
+      addBtn.disabled = false;
+    }
+  });
+
+  // init
+  renderMonthBar();
+  renderDow();
+  renderMonth(selectedMonth);
+</script>
+</body>
+</html>

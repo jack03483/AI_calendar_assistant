@@ -1,0 +1,14 @@
+{
+  "name": "calendar-2026-ai",
+  "version": "1.0.0",
+  "description": "Local 2026 calendar that uses ChatGPT to file text and images into dates",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "multer": "^1.4.5-lts.1"
+  }
+}
