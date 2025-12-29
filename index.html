@@ -111,6 +111,8 @@
       display:flex;
       gap: 12px;
       align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
     }
 
     button{
@@ -151,6 +153,23 @@
       border-color: rgba(103,232,255,.22);
       box-shadow: 0 0 0 1px rgba(0,0,0,.38) inset, 0 0 18px rgba(51,199,255,.08);
       color: rgba(192,247,255,.92);
+    }
+    .btnDanger{
+      border: 1px solid var(--dangerBorder);
+      background: linear-gradient(180deg, rgba(255,80,120,.18), rgba(255,80,120,.08));
+      color: rgba(255, 200, 220, .98);
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,.38) inset,
+        0 0 26px rgba(255,80,120,.10),
+        0 0 44px rgba(255,80,120,.06);
+    }
+    .btnDanger:hover{
+      border-color: rgba(255,80,120,.55);
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,.38) inset,
+        0 0 34px rgba(255,80,120,.13),
+        0 0 58px rgba(255,80,120,.08);
+      filter: saturate(1.10) brightness(1.02);
     }
 
     .monthbar{
@@ -477,8 +496,10 @@
       <div class="topRow">
         <div class="title">2026 Calendar</div>
         <div class="rightRow">
+          <button id="undoBtn" class="btnSubtle" type="button">Undo</button>
           <button id="imgBtn" class="btnSubtle" type="button">Add images</button>
           <button id="clearImgs" class="btnSubtle" type="button">Clear</button>
+          <button id="wipeAll" class="btnDanger" type="button">Wipe all</button>
           <div id="status" class="status"></div>
         </div>
       </div>
@@ -539,6 +560,8 @@
   const thumbsEl = document.getElementById("thumbs");
   const imgBtn = document.getElementById("imgBtn");
   const clearImgsBtn = document.getElementById("clearImgs");
+  const wipeAllBtn = document.getElementById("wipeAll");
+  const undoBtn = document.getElementById("undoBtn");
   const statusEl = document.getElementById("status");
 
   const modalOverlay = document.getElementById("modalOverlay");
@@ -556,13 +579,43 @@
   let images = [];
   let selectedMonth = new Date().getFullYear() === YEAR ? new Date().getMonth() : 0;
 
-  // AI event deletion
   let activeEventId = null;
 
-  // Manual editor state
   let manualMode = false;
-  let manualDate = null;          // YYYY-MM-DD
-  let manualEditingId = null;     // existing manual event id or null
+  let manualDate = null;
+  let manualEditingId = null;
+
+  /* ---------- UNDO (single-step) ---------- */
+  const UNDO_KEY = "events_2026_undo";
+  function snapshotForUndo() {
+    // store a snapshot of the current events BEFORE a change
+    try {
+      const cur = localStorage.getItem("events_2026");
+      localStorage.setItem(UNDO_KEY, cur ?? "[]");
+    } catch {}
+    updateUndoUI();
+  }
+  function canUndo() {
+    const u = localStorage.getItem(UNDO_KEY);
+    return u !== null;
+  }
+  function updateUndoUI() {
+    undoBtn.disabled = !canUndo();
+  }
+  function doUndo() {
+    const snap = localStorage.getItem(UNDO_KEY);
+    if (snap === null) return;
+
+    // restore snapshot into events_2026 and clear undo
+    localStorage.setItem("events_2026", snap);
+    localStorage.removeItem(UNDO_KEY);
+
+    closeModal();
+    renderMonth(selectedMonth);
+    setStatus("Undone");
+    updateUndoUI();
+  }
+  undoBtn.addEventListener("click", doUndo);
 
   function uid() {
     return "e_" + Math.random().toString(16).slice(2) + Date.now().toString(16);
@@ -591,7 +644,7 @@
       const ne = { ...e };
       if (!ne.id) { ne.id = stableLegacyId(ne); changed = true; }
       if (!ne.series_id) { ne.series_id = ne.id; changed = true; }
-      if (!("source" in ne)) { ne.source = "ai"; changed = true; } // old stuff treated as ai
+      if (!("source" in ne)) { ne.source = "ai"; changed = true; }
       return ne;
     });
     if (changed) localStorage.setItem("events_2026", JSON.stringify(out));
@@ -630,6 +683,8 @@
         end_time: e.end_time ?? null
       };
 
+      const daysOfWeek = Array.isArray(e.days_of_week) ? e.days_of_week : null;
+
       if (isIsoDate(e.date)) {
         out.push({ ...base, date: e.date });
         continue;
@@ -642,12 +697,15 @@
 
         const series = base.series_id;
         for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+          if (daysOfWeek && daysOfWeek.length) {
+            const wd = d.getDay();
+            if (!daysOfWeek.includes(wd)) continue;
+          }
           const y = d.getFullYear();
           const m = String(d.getMonth() + 1).padStart(2, "0");
           const day = String(d.getDate()).padStart(2, "0");
           out.push({ ...base, id: uid(), series_id: series, date: `${y}-${m}-${day}` });
         }
-        continue;
       }
     }
     return out;
@@ -737,7 +795,6 @@
     manualDate = dateKey;
     activeEventId = null;
 
-    // load existing manual event for that date (single note per day)
     const evts = loadEvents();
     const existing = evts.find(e => e.source === "manual" && e.date === dateKey) || null;
     manualEditingId = existing?.id || null;
@@ -752,7 +809,7 @@
     manualTitleEl.value = existing?.title || "";
     manualDetailsEl.value = existing?.details || "";
 
-    modalDelete.disabled = !existing; // only delete if there is something
+    modalDelete.disabled = !existing;
     modalOverlay.classList.add("open");
     modalOverlay.setAttribute("aria-hidden", "false");
 
@@ -770,6 +827,9 @@
 
   function deleteActiveEvent() {
     const evts = loadEvents();
+
+    // snapshot BEFORE delete
+    snapshotForUndo();
 
     if (manualMode) {
       if (!manualDate) return;
@@ -792,13 +852,15 @@
   function saveManualEvent() {
     if (!manualDate) return;
 
+    // snapshot BEFORE save/edit
+    snapshotForUndo();
+
     const title = (manualTitleEl.value || "").trim();
     const details = (manualDetailsEl.value || "").trim();
 
     const evts = loadEvents();
     const next = evts.filter(e => !(e.source === "manual" && e.date === manualDate));
 
-    // If both empty: treat as delete
     if (!title && !details) {
       saveEvents(next);
       closeModal();
@@ -855,9 +917,7 @@
       cell.className = "day";
       const dateKey = isoDate(YEAR, m, day);
 
-      // Clicking empty area of day opens manual modal
       cell.addEventListener("click", (ev) => {
-        // prevent day click when clicking an event pill
         if (ev.target && ev.target.classList && ev.target.classList.contains("event")) return;
         openManualModal(dateKey);
       });
@@ -867,7 +927,6 @@
       num.textContent = day;
       cell.appendChild(num);
 
-      // show manual first, then AI
       const todays = evts
         .filter(e => e.date === dateKey)
         .sort((a,b) => (a.source === "manual" ? -1 : 1));
@@ -920,17 +979,12 @@
     });
   }
   function addFiles(files) {
-    for (const f of files) {
-      if (f.type && f.type.startsWith("image/")) images.push(f);
-    }
+    for (const f of files) if (f.type && f.type.startsWith("image/")) images.push(f);
     refreshThumbs();
   }
 
   dropEl.addEventListener("dragover", (e) => { e.preventDefault(); });
-  dropEl.addEventListener("drop", (e) => {
-    e.preventDefault();
-    addFiles(e.dataTransfer.files);
-  });
+  dropEl.addEventListener("drop", (e) => { e.preventDefault(); addFiles(e.dataTransfer.files); });
 
   imgBtn.addEventListener("click", () => fileEl.click());
   fileEl.addEventListener("change", () => addFiles(fileEl.files));
@@ -941,6 +995,16 @@
     refreshThumbs();
   });
 
+  wipeAllBtn.addEventListener("click", () => {
+    // snapshot BEFORE wipe
+    snapshotForUndo();
+
+    localStorage.removeItem("events_2026");
+    closeModal();
+    renderMonth(selectedMonth);
+    setStatus("Wiped");
+  });
+
   function clamp(n, min, max){ return Math.min(max, Math.max(min, n)); }
   function prevMonth(){ selectedMonth = clamp(selectedMonth - 1, 0, 11); renderMonthBar(); renderMonth(selectedMonth); }
   function nextMonth(){ selectedMonth = clamp(selectedMonth + 1, 0, 11); renderMonthBar(); renderMonth(selectedMonth); }
@@ -948,6 +1012,9 @@
   async function addToCalendar() {
     const text = textEl.value.trim();
     if (!text && images.length === 0) return;
+
+    // snapshot BEFORE AI add
+    snapshotForUndo();
 
     setStatus("…");
 
@@ -978,17 +1045,22 @@
       fileEl.value = "";
       refreshThumbs();
     } catch {
+      // undo snapshot still exists; leave it so you can press Undo
       setStatus("Error");
+    } finally {
+      updateUndoUI();
     }
   }
 
-  // ✅ Keyboard shortcuts
   window.addEventListener("keydown", (e) => {
     if (modalOverlay.classList.contains("open")) {
       if (e.key === "Escape") { e.preventDefault(); closeModal(); return; }
       if ((e.key === "d" || e.key === "D")) { e.preventDefault(); deleteActiveEvent(); return; }
       if (manualMode && (e.key === "s" || e.key === "S") && (e.metaKey || e.ctrlKey)) {
         e.preventDefault(); saveManualEvent(); return;
+      }
+      if ((e.key === "u" || e.key === "U") && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        e.preventDefault(); doUndo(); return;
       }
       return;
     }
@@ -997,19 +1069,19 @@
     const tag = el?.tagName?.toLowerCase();
     const isTyping = tag === "textarea" || tag === "input";
 
-    // T focuses textbox only when not typing
     if (!isTyping && (e.key === "t" || e.key === "T")) { e.preventDefault(); textEl.focus(); return; }
 
-    // Month nav only when not typing
     if (!isTyping) {
       if (e.key === "ArrowLeft") { e.preventDefault(); prevMonth(); return; }
       if (e.key === "ArrowRight") { e.preventDefault(); nextMonth(); return; }
+      if ((e.key === "u" || e.key === "U") && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        e.preventDefault(); doUndo(); return;
+      }
     }
 
-    // ✅ AI send: ONLY Alt/Option + Enter while in textarea
+    // AI send: ONLY Alt/Option + Enter in textarea
     if (tag === "textarea" && e.key === "Enter") {
       if (e.altKey) { e.preventDefault(); addToCalendar(); return; }
-      // Enter / Shift+Enter = newline (do nothing)
       return;
     }
   });
@@ -1019,6 +1091,7 @@
   renderMonthBar();
   renderDow();
   renderMonth(selectedMonth);
+  updateUndoUI();
 </script>
 </body>
 </html>
