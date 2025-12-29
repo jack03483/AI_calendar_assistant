@@ -20,13 +20,27 @@
       --text: rgba(103, 232, 255, .95);
       --text2: rgba(51, 199, 255, .95);
       --muted: rgba(103, 232, 255, .78);
+      --dim: rgba(103, 232, 255, .55);
       --shadow: 0 14px 52px rgba(0,0,0,.62);
       --glow: 0 0 22px rgba(51,199,255,.16), 0 0 52px rgba(51,199,255,.10);
       --radius: 18px;
       --dangerBorder: rgba(255, 80, 120, .28);
+
+      --dayMinH: 84px;
+      --dayPad: 10px;
+      --dayGap: 8px;
+      --numSize: 12px;
+      --pillSize: 12px;
+      --pillPadY: 6px;
+      --pillPadX: 10px;
+
+      --timelineHourH: 40px;
+      --timelinePadL: 64px;
+      --timelinePadR: 12px;
+      --timelineGap: 10px;
     }
 
-    * { box-sizing: border-box; }
+    *{ box-sizing:border-box; }
     html, body{ height:100%; overflow:hidden; }
 
     body{
@@ -68,16 +82,16 @@
 
     .card{
       background: linear-gradient(180deg, var(--panel), var(--panel2));
-      border: 1px solid rgba(51, 199, 255, .26);
+      border: 1px solid var(--border);
       border-radius: var(--radius);
-      box-shadow: 0 14px 52px rgba(0,0,0,.62), var(--glow);
+      box-shadow: var(--shadow), var(--glow);
       padding: 18px;
       backdrop-filter: blur(10px);
       position: relative;
       overflow: hidden;
       display:flex;
       flex-direction:column;
-      gap: 14px;
+      gap:14px;
       flex: 1 1 auto;
       min-height: 0;
     }
@@ -118,7 +132,7 @@
     button{
       border: 1px solid rgba(103,232,255,.48);
       background: linear-gradient(180deg, rgba(51,199,255,.20), rgba(51,199,255,.08));
-      color: rgba(51,199,255,.95);
+      color: var(--text2);
       padding: 12px 16px;
       border-radius: 999px;
       cursor:pointer;
@@ -154,6 +168,7 @@
       box-shadow: 0 0 0 1px rgba(0,0,0,.38) inset, 0 0 18px rgba(51,199,255,.08);
       color: rgba(192,247,255,.92);
     }
+
     .btnDanger{
       border: 1px solid var(--dangerBorder);
       background: linear-gradient(180deg, rgba(255,80,120,.18), rgba(255,80,120,.08));
@@ -163,13 +178,16 @@
         0 0 26px rgba(255,80,120,.10),
         0 0 44px rgba(255,80,120,.06);
     }
-    .btnDanger:hover{
-      border-color: rgba(255,80,120,.55);
-      box-shadow:
-        0 0 0 1px rgba(0,0,0,.38) inset,
-        0 0 34px rgba(255,80,120,.13),
-        0 0 58px rgba(255,80,120,.08);
-      filter: saturate(1.10) brightness(1.02);
+
+    .status{
+      font-size: 13px;
+      color: rgba(103,232,255,.82);
+      line-height: 1.35;
+      max-width: 240px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      user-select:none;
     }
 
     .monthbar{
@@ -230,64 +248,53 @@
       user-select:none;
       padding: 2px 0;
     }
-
     .grid{
       flex: 1 1 auto;
       min-height: 0;
       align-content: stretch;
     }
-
     .day{
       border-radius: 18px;
       border: 1px solid rgba(51,199,255,.18);
       background: linear-gradient(180deg, rgba(2,6,23,.74), rgba(2,6,23,.46));
       box-shadow: 0 0 0 1px rgba(0,0,0,.38) inset, 0 0 18px rgba(51,199,255,.08);
-      padding: var(--dayPad, 10px);
-      min-height: var(--dayMinH, 86px);
+      padding: var(--dayPad);
+      min-height: var(--dayMinH);
       display:flex;
       flex-direction:column;
-      gap: var(--dayGap, 8px);
+      gap: var(--dayGap);
       min-width: 0;
-      overflow: hidden;
-      cursor: pointer;
+      overflow:hidden;
+      cursor:pointer;
     }
     .day.muted{
-      opacity: .55;
-      border-style: dashed;
+      opacity:.55;
+      border-style:dashed;
       background: rgba(2,6,23,.35);
       cursor: default;
     }
     .num{
-      font-size: var(--numSize, 12px);
+      font-size: var(--numSize);
       color: rgba(192,247,255,.84);
       user-select:none;
       font-variant-numeric: tabular-nums;
       line-height: 1;
     }
-
-    .event{
-      font-size: var(--eventSize, 12px);
-      padding: var(--eventPadY, 6px) var(--eventPadX, 10px);
+    .pill{
+      font-size: var(--pillSize);
+      padding: var(--pillPadY) var(--pillPadX);
       border-radius: 999px;
       border: 1px solid rgba(103,232,255,.22);
       background: rgba(51,199,255,.10);
       color: rgba(192,247,255,.94);
       box-shadow: 0 0 0 1px rgba(0,0,0,.35) inset, 0 0 16px rgba(51,199,255,.08);
-      cursor: pointer;
-
+      cursor:pointer;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       min-width: 0;
-
-      transition: transform .10s ease, border-color .12s ease, filter .12s ease;
     }
-    .event:hover{
-      transform: translateY(-1px);
-      border-color: rgba(103,232,255,.55);
-      filter: brightness(1.03) saturate(1.08);
-    }
-    .event.more{
+    .pill.more{
       background: rgba(2,6,23,.55);
       color: rgba(103,232,255,.82);
     }
@@ -299,10 +306,9 @@
       flex-direction:column;
       gap: 10px;
     }
-
-    textarea{
-      width: 100%;
-      color: rgba(51,199,255,.95);
+    textarea#text{
+      width:100%;
+      color: var(--text2);
       background: rgba(2,6,23,.60);
       border: 1px solid rgba(51,199,255,.18);
       border-radius: 14px;
@@ -316,7 +322,7 @@
       resize: none;
       height: 86px;
     }
-    textarea:focus{
+    textarea#text:focus{
       border-color: rgba(103,232,255,.58);
       box-shadow: 0 0 0 3px rgba(51,199,255,.14), 0 0 26px rgba(51,199,255,.18);
       transform: translateY(-1px);
@@ -332,9 +338,7 @@
       flex-direction:column;
       gap: 10px;
     }
-
     input[type="file"]{ display:none; }
-
     .thumbs{ display:flex; flex-wrap:wrap; gap: 10px; }
     .thumb{
       width: 76px; height: 76px;
@@ -345,35 +349,24 @@
       object-fit: cover;
     }
 
-    .status{
-      font-size: 13px;
-      color: rgba(103,232,255,.82);
-      line-height: 1.35;
-      max-width: 220px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      user-select:none;
-    }
-
-    .modalOverlay{
-      position: fixed;
-      inset: 0;
+    .overlay{
+      position:fixed;
+      inset:0;
       background: rgba(0,0,0,.58);
       display:none;
       align-items:center;
       justify-content:center;
-      z-index: 9999;
-      padding: 16px;
+      z-index:9999;
+      padding:16px;
     }
-    .modalOverlay.open{ display:flex; }
+    .overlay.open{ display:flex; }
 
     .modal{
-      width: min(720px, 100%);
+      width: min(980px, 100%);
       background: linear-gradient(180deg, rgba(6,10,22,.92), rgba(6,10,22,.72));
       border: 1px solid rgba(51,199,255,.26);
       border-radius: 18px;
-      box-shadow: 0 14px 52px rgba(0,0,0,.62), var(--glow);
+      box-shadow: var(--shadow), var(--glow);
       padding: 16px;
       backdrop-filter: blur(10px);
       position: relative;
@@ -387,102 +380,221 @@
       box-shadow: 0 0 0 1px rgba(51,199,255,.12) inset;
       pointer-events:none;
     }
+
     .modalTop{
       display:flex;
-      gap: 12px;
+      gap:12px;
       justify-content:space-between;
       align-items:flex-start;
-      position: relative;
-      z-index: 1;
+      position:relative;
+      z-index:1;
     }
     .modalTitle{
-      margin: 0;
-      font-size: 16px;
+      margin:0;
+      font-size:16px;
       color: rgba(192,247,255,.94);
-      letter-spacing: .25px;
+      letter-spacing:.25px;
     }
     .modalMeta{
+      margin-top:6px;
       color: rgba(103,232,255,.78);
       font-size: 13px;
-      margin-top: 6px;
       font-variant-numeric: tabular-nums;
     }
+    .modalActions{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
 
-    .modalBody{
-      position: relative;
-      z-index: 1;
+    .dayGrid{
+      position:relative;
+      z-index:1;
       margin-top: 12px;
       padding-top: 12px;
       border-top: 1px solid rgba(51,199,255,.14);
-      color: rgba(192,247,255,.90);
-      font-family: "Source Serif 4", ui-serif, Georgia, "Times New Roman", serif;
-      font-size: 18px;
-      line-height: 1.6;
-      white-space: pre-wrap;
-      max-height: min(60vh, 520px);
-      overflow:auto;
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 12px;
+      height: min(70vh, 640px);
+      min-height: 420px;
+    }
+    .panel{
+      border-radius: 18px;
+      border: 1px solid rgba(51,199,255,.20);
+      background: linear-gradient(180deg, rgba(2,6,23,.74), rgba(2,6,23,.46));
+      box-shadow: 0 0 0 1px rgba(0,0,0,.38) inset, 0 0 18px rgba(51,199,255,.08);
+      overflow:hidden;
+      position:relative;
+      min-height: 0;
+      display:flex;
+      flex-direction:column;
+    }
+    .panelHeader{
+      padding: 12px 12px 10px 12px;
+      border-bottom: 1px solid rgba(51,199,255,.14);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+    }
+    .panelHeader h4{
+      margin:0;
+      font-size: 12px;
+      letter-spacing: .38px;
+      text-transform: uppercase;
+      color: rgba(51,199,255,.95);
+      opacity: .92;
+      user-select:none;
+    }
+
+    /* ✅ FIXED WIDTH: NO horizontal scrolling. */
+    .timelineWrap{
+      flex: 1 1 auto;
+      min-height: 0;
+      position:relative;
+      overflow-x: hidden;   /* ✅ key change */
+      overflow-y: auto;
       scrollbar-width: thin;
       scrollbar-color: rgba(103,232,255,.55) rgba(2,6,23,.30);
     }
-    .modalBody::-webkit-scrollbar { width: 10px; }
-    .modalBody::-webkit-scrollbar-track { background: rgba(2,6,23,.30); border-radius: 10px; }
-    .modalBody::-webkit-scrollbar-thumb {
+    .timelineWrap::-webkit-scrollbar{ width:10px; height:10px; }
+    .timelineWrap::-webkit-scrollbar-track{ background: rgba(2,6,23,.30); border-radius:10px; }
+    .timelineWrap::-webkit-scrollbar-thumb{
       background: linear-gradient(180deg, rgba(103,232,255,.65), rgba(51,199,255,.45));
-      border-radius: 10px;
+      border-radius:10px;
     }
 
-    .modalForm{
-      margin-top: 12px;
+    .timeline{
+      position:relative;
+      height: calc(24 * var(--timelineHourH));
+      padding-left: var(--timelinePadL);
+      padding-right: var(--timelinePadR);
+      padding-top: 8px;
+      padding-bottom: 8px;
+      width: 100%;
+    }
+    .hour{
+      position:absolute;
+      left:0;
+      right:0;
+      height: var(--timelineHourH);
+      border-top: 1px solid rgba(51,199,255,.10);
+    }
+    .hourLabel{
+      position:absolute;
+      left: 12px;
+      top: -8px;
+      font-size: 12px;
+      color: rgba(103,232,255,.75);
+      font-variant-numeric: tabular-nums;
+      user-select:none;
+    }
+
+    .tBlock{
+      position:absolute;
+      border-radius: 14px;
+      border: 1px solid rgba(103,232,255,.24);
+      background: rgba(51,199,255,.12);
+      box-shadow: 0 0 0 1px rgba(0,0,0,.35) inset, 0 0 16px rgba(51,199,255,.08);
+      padding: 8px 10px;
+      cursor:pointer;
+      overflow:hidden;
+      min-width: 0;
+    }
+    .tTitle{
+      font-size: 13px;
+      font-weight: 850;
+      color: rgba(192,247,255,.94);
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    .tMeta{
+      margin-top: 3px;
+      font-size: 12px;
+      color: rgba(103,232,255,.78);
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ✅ compact mode when columns get tight */
+    .tBlock.compact{ padding: 6px 8px; border-radius: 12px; }
+    .tBlock.compact .tTitle{ font-size: 12px; }
+    .tBlock.compact .tMeta{ font-size: 11px; }
+
+    .eventsList{
+      flex:1 1 auto;
+      min-height:0;
+      overflow:auto;
+      padding: 10px;
       display:flex;
       flex-direction:column;
       gap: 10px;
-      position: relative;
-      z-index: 1;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(103,232,255,.55) rgba(2,6,23,.30);
     }
-    .modalInput{
-      width: 100%;
-      color: rgba(51,199,255,.95);
+    .eventCard{
+      border-radius: 16px;
+      border: 1px solid rgba(103,232,255,.22);
+      background: rgba(2,6,23,.62);
+      box-shadow: 0 0 0 1px rgba(0,0,0,.38) inset, 0 0 18px rgba(51,199,255,.08);
+      padding: 10px 12px;
+      cursor:pointer;
+      overflow:hidden;
+    }
+    .eventCard .tTitle{ font-size: 13px; }
+    .eventCard .tMeta{ white-space: pre-wrap; }
+
+    .editBody{
+      position:relative;
+      z-index:1;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(51,199,255,.14);
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .fieldRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .input, .select, .editText{
+      color: var(--text2);
       background: rgba(2,6,23,.60);
       border: 1px solid rgba(51,199,255,.18);
       border-radius: 14px;
       padding: 12px 14px;
       outline: none;
       font-size: 15px;
-      line-height: 1.35;
       caret-color: rgba(103,232,255,.95);
+      transition: box-shadow .18s, border-color .18s, transform .18s;
     }
-    .modalInput:focus{
+    .select{ padding: 12px 12px; }
+    .input:focus, .select:focus, .editText:focus{
       border-color: rgba(103,232,255,.58);
       box-shadow: 0 0 0 3px rgba(51,199,255,.14), 0 0 26px rgba(51,199,255,.18);
+      transform: translateY(-1px);
     }
-    .modalText{
-      height: 180px;
-      resize: none;
+    .editText{
+      width:100%;
+      height: 200px;
+      resize:none;
       font-family: "Source Serif 4", ui-serif, Georgia, "Times New Roman", serif;
       font-size: 18px;
       line-height: 1.6;
-    }
-
-    .dangerBtn{
-      border: 1px solid var(--dangerBorder);
-      background: linear-gradient(180deg, rgba(255,80,120,.18), rgba(255,80,120,.08));
-      color: rgba(255, 200, 220, .98);
-      box-shadow:
-        0 0 0 1px rgba(0,0,0,.38) inset,
-        0 0 26px rgba(255,80,120,.10),
-        0 0 44px rgba(255,80,120,.06);
-    }
-    .dangerBtn:hover{
-      border-color: rgba(255,80,120,.55);
-      box-shadow:
-        0 0 0 1px rgba(0,0,0,.38) inset,
-        0 0 34px rgba(255,80,120,.13),
-        0 0 58px rgba(255,80,120,.08);
-      filter: saturate(1.10) brightness(1.02);
+      color: rgba(192,247,255,.92);
     }
 
     @media (max-width: 920px){
       .monthbar{ grid-template-columns: repeat(6, minmax(0, 1fr)); }
+      .dayGrid{ grid-template-columns: 1fr; height: min(75vh, 740px); }
     }
     @media (max-width: 520px){
       .monthbar{ grid-template-columns: repeat(4, minmax(0, 1fr)); }
@@ -497,6 +609,7 @@
         <div class="title">2026 Calendar</div>
         <div class="rightRow">
           <button id="undoBtn" class="btnSubtle" type="button">Undo</button>
+          <button id="redoBtn" class="btnSubtle" type="button">Redo</button>
           <button id="imgBtn" class="btnSubtle" type="button">Add images</button>
           <button id="clearImgs" class="btnSubtle" type="button">Clear</button>
           <button id="wipeAll" class="btnDanger" type="button">Wipe all</button>
@@ -520,25 +633,63 @@
     </div>
   </div>
 
-  <div id="modalOverlay" class="modalOverlay" aria-hidden="true">
+  <!-- Day view modal -->
+  <div id="dayOverlay" class="overlay" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true">
       <div class="modalTop">
         <div>
-          <h3 id="modalTitle" class="modalTitle"></h3>
-          <div id="modalMeta" class="modalMeta"></div>
+          <h3 id="dayTitle" class="modalTitle"></h3>
+          <div id="dayMeta" class="modalMeta"></div>
         </div>
-        <div style="display:flex; gap:10px; align-items:center;">
-          <button id="modalSave" class="btnSubtle" type="button" style="display:none;">Save</button>
-          <button id="modalDelete" class="dangerBtn" type="button">Delete</button>
-          <button id="modalClose" class="btnSubtle" type="button">Close</button>
+        <div class="modalActions">
+          <button id="addTimedBtn" class="btnSubtle" type="button">Add timed</button>
+          <button id="addEventBtn" class="btnSubtle" type="button">Add event</button>
+          <button id="dayClose" class="btnSubtle" type="button">Close</button>
         </div>
       </div>
 
-      <div id="modalBody" class="modalBody"></div>
+      <div class="dayGrid">
+        <div class="panel">
+          <div class="panelHeader"><h4>Timed</h4></div>
+          <div class="timelineWrap">
+            <div id="timeline" class="timeline"></div>
+          </div>
+        </div>
 
-      <div id="modalForm" class="modalForm" style="display:none;">
-        <input id="manualTitle" class="modalInput" type="text" />
-        <textarea id="manualDetails" class="modalInput modalText" spellcheck="false" autocorrect="off" autocapitalize="off" autocomplete="off"></textarea>
+        <div class="panel">
+          <div class="panelHeader"><h4>Events</h4></div>
+          <div id="eventsList" class="eventsList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit item modal -->
+  <div id="editOverlay" class="overlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modalTop">
+        <div>
+          <h3 id="editTitleTop" class="modalTitle"></h3>
+          <div id="editMetaTop" class="modalMeta"></div>
+        </div>
+        <div class="modalActions">
+          <button id="editSave" class="btnSubtle" type="button">Save</button>
+          <button id="editDelete" class="btnDanger" type="button">Delete</button>
+          <button id="editClose" class="btnSubtle" type="button">Close</button>
+        </div>
+      </div>
+
+      <div class="editBody">
+        <div class="fieldRow">
+          <select id="editType" class="select">
+            <option value="time">time</option>
+            <option value="event">event</option>
+          </select>
+          <input id="editTitle" class="input" type="text" />
+          <input id="editStart" class="input" type="text" placeholder="HH:MM" style="width:120px;" />
+          <input id="editEnd" class="input" type="text" placeholder="HH:MM" style="width:120px;" />
+        </div>
+        <textarea id="editDetails" class="editText" spellcheck="false" autocorrect="off" autocapitalize="off" autocomplete="off"></textarea>
       </div>
     </div>
   </div>
@@ -562,60 +713,39 @@
   const clearImgsBtn = document.getElementById("clearImgs");
   const wipeAllBtn = document.getElementById("wipeAll");
   const undoBtn = document.getElementById("undoBtn");
+  const redoBtn = document.getElementById("redoBtn");
   const statusEl = document.getElementById("status");
 
-  const modalOverlay = document.getElementById("modalOverlay");
-  const modalTitle = document.getElementById("modalTitle");
-  const modalMeta = document.getElementById("modalMeta");
-  const modalBody = document.getElementById("modalBody");
-  const modalClose = document.getElementById("modalClose");
-  const modalDelete = document.getElementById("modalDelete");
-  const modalSave = document.getElementById("modalSave");
+  const dayOverlay = document.getElementById("dayOverlay");
+  const dayTitle = document.getElementById("dayTitle");
+  const dayMeta = document.getElementById("dayMeta");
+  const dayClose = document.getElementById("dayClose");
+  const addTimedBtn = document.getElementById("addTimedBtn");
+  const addEventBtn = document.getElementById("addEventBtn");
+  const timelineEl = document.getElementById("timeline");
+  const eventsListEl = document.getElementById("eventsList");
 
-  const modalForm = document.getElementById("modalForm");
-  const manualTitleEl = document.getElementById("manualTitle");
-  const manualDetailsEl = document.getElementById("manualDetails");
+  const editOverlay = document.getElementById("editOverlay");
+  const editTitleTop = document.getElementById("editTitleTop");
+  const editMetaTop = document.getElementById("editMetaTop");
+  const editClose = document.getElementById("editClose");
+  const editSave = document.getElementById("editSave");
+  const editDelete = document.getElementById("editDelete");
+  const editType = document.getElementById("editType");
+  const editTitle = document.getElementById("editTitle");
+  const editStart = document.getElementById("editStart");
+  const editEnd = document.getElementById("editEnd");
+  const editDetails = document.getElementById("editDetails");
 
   let images = [];
   let selectedMonth = new Date().getFullYear() === YEAR ? new Date().getMonth() : 0;
+  let activeDay = null;
+  let activeItemId = null;
 
-  let activeEventId = null;
-
-  let manualMode = false;
-  let manualDate = null;
-  let manualEditingId = null;
-
-  /* ---------- UNDO (single-step) ---------- */
-  const UNDO_KEY = "events_2026_undo";
-  function snapshotForUndo() {
-    // store a snapshot of the current events BEFORE a change
-    try {
-      const cur = localStorage.getItem("events_2026");
-      localStorage.setItem(UNDO_KEY, cur ?? "[]");
-    } catch {}
-    updateUndoUI();
-  }
-  function canUndo() {
-    const u = localStorage.getItem(UNDO_KEY);
-    return u !== null;
-  }
-  function updateUndoUI() {
-    undoBtn.disabled = !canUndo();
-  }
-  function doUndo() {
-    const snap = localStorage.getItem(UNDO_KEY);
-    if (snap === null) return;
-
-    // restore snapshot into events_2026 and clear undo
-    localStorage.setItem("events_2026", snap);
-    localStorage.removeItem(UNDO_KEY);
-
-    closeModal();
-    renderMonth(selectedMonth);
-    setStatus("Undone");
-    updateUndoUI();
-  }
-  undoBtn.addEventListener("click", doUndo);
+  const DATA_KEY = "events_2026_v2";
+  const UNDO_STACK = "events_2026_undo_stack";
+  const REDO_STACK = "events_2026_redo_stack";
+  const MAX_STACK = 30;
 
   function uid() {
     return "e_" + Math.random().toString(16).slice(2) + Date.now().toString(16);
@@ -638,26 +768,107 @@
     return "legacy_" + (h >>> 0).toString(16);
   }
 
-  function migrateEvents(evts) {
-    let changed = false;
-    const out = (evts || []).map(e => {
-      const ne = { ...e };
-      if (!ne.id) { ne.id = stableLegacyId(ne); changed = true; }
-      if (!ne.series_id) { ne.series_id = ne.id; changed = true; }
-      if (!("source" in ne)) { ne.source = "ai"; changed = true; }
-      return ne;
-    });
-    if (changed) localStorage.setItem("events_2026", JSON.stringify(out));
-    return out;
+  function migrateIfNeeded() {
+    const hasNew = localStorage.getItem(DATA_KEY);
+    if (hasNew) return;
+
+    let legacy = [];
+    try { legacy = JSON.parse(localStorage.getItem("events_2026") || "[]"); } catch { legacy = []; }
+
+    const v2 = (legacy || []).map(e => {
+      const allDay = !!e.all_day;
+      const type = allDay ? "event" : "time";
+      return {
+        id: e.id || stableLegacyId(e),
+        date: e.date || null,
+        title: e.title || "Untitled",
+        details: e.details || "",
+        type,
+        start_time: e.start_time ?? null,
+        end_time: e.end_time ?? null,
+        source: e.source || "ai"
+      };
+    }).filter(x => x.date);
+
+    localStorage.setItem(DATA_KEY, JSON.stringify(v2));
   }
 
-  function loadEvents() {
-    try {
-      const evts = JSON.parse(localStorage.getItem("events_2026") || "[]");
-      return migrateEvents(evts);
-    } catch { return []; }
+  function loadAll() {
+    migrateIfNeeded();
+    try { return JSON.parse(localStorage.getItem(DATA_KEY) || "[]"); }
+    catch { return []; }
   }
-  function saveEvents(evts) { localStorage.setItem("events_2026", JSON.stringify(evts)); }
+  function saveAll(items) {
+    localStorage.setItem(DATA_KEY, JSON.stringify(items));
+  }
+
+  function loadStack(key) {
+    try { return JSON.parse(localStorage.getItem(key) || "[]"); }
+    catch { return []; }
+  }
+  function saveStack(key, arr) {
+    localStorage.setItem(key, JSON.stringify(arr));
+  }
+
+  function pushUndoSnapshot() {
+    const cur = localStorage.getItem(DATA_KEY) || "[]";
+    const undo = loadStack(UNDO_STACK);
+    undo.push(cur);
+    while (undo.length > MAX_STACK) undo.shift();
+    saveStack(UNDO_STACK, undo);
+    saveStack(REDO_STACK, []);
+    updateUndoRedoUI();
+  }
+  function canUndo() { return loadStack(UNDO_STACK).length > 0; }
+  function canRedo() { return loadStack(REDO_STACK).length > 0; }
+
+  function doUndo() {
+    const undo = loadStack(UNDO_STACK);
+    if (!undo.length) return;
+
+    const cur = localStorage.getItem(DATA_KEY) || "[]";
+    const prev = undo.pop();
+    saveStack(UNDO_STACK, undo);
+
+    const redo = loadStack(REDO_STACK);
+    redo.push(cur);
+    while (redo.length > MAX_STACK) redo.shift();
+    saveStack(REDO_STACK, redo);
+
+    localStorage.setItem(DATA_KEY, prev);
+    updateUndoRedoUI();
+    rerender();
+    setStatus("Undone");
+  }
+
+  function doRedo() {
+    const redo = loadStack(REDO_STACK);
+    if (!redo.length) return;
+
+    const cur = localStorage.getItem(DATA_KEY) || "[]";
+    const next = redo.pop();
+    saveStack(REDO_STACK, redo);
+
+    const undo = loadStack(UNDO_STACK);
+    undo.push(cur);
+    while (undo.length > MAX_STACK) undo.shift();
+    saveStack(UNDO_STACK, undo);
+
+    localStorage.setItem(DATA_KEY, next);
+    updateUndoRedoUI();
+    rerender();
+    setStatus("Redone");
+  }
+
+  function updateUndoRedoUI() {
+    undoBtn.disabled = !canUndo();
+    redoBtn.disabled = !canRedo();
+  }
+
+  undoBtn.addEventListener("click", doUndo);
+  redoBtn.addEventListener("click", doRedo);
+
+  function setStatus(msg) { statusEl.textContent = msg || ""; }
 
   function isoDate(y, m, d) {
     const mm = String(m + 1).padStart(2,"0");
@@ -666,27 +877,70 @@
   }
   function daysInMonth(y, m) { return new Date(y, m + 1, 0).getDate(); }
   function isIsoDate(s) { return typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s); }
+  function isTime(s) { return s === null || s === "" || (/^\d{2}:\d{2}$/.test(String(s))); }
+  function clamp(n, min, max){ return Math.min(max, Math.max(min, n)); }
 
-  function setStatus(msg) { statusEl.textContent = msg || ""; }
+  function timeToMin(t) {
+    if (!t || !/^\d{2}:\d{2}$/.test(t)) return null;
+    const [hh, mm] = t.split(":").map(Number);
+    if (hh < 0 || hh > 23 || mm < 0 || mm > 59) return null;
+    return hh * 60 + mm;
+  }
+
+  function applyMonthFit(weeks) {
+    const root = document.documentElement;
+    if (weeks >= 6) {
+      root.style.setProperty("--dayMinH", "68px");
+      root.style.setProperty("--dayPad", "8px");
+      root.style.setProperty("--dayGap", "6px");
+      root.style.setProperty("--numSize", "11px");
+      root.style.setProperty("--pillSize", "11px");
+      root.style.setProperty("--pillPadY", "5px");
+      root.style.setProperty("--pillPadX", "9px");
+    } else if (weeks === 5) {
+      root.style.setProperty("--dayMinH", "76px");
+      root.style.setProperty("--dayPad", "9px");
+      root.style.setProperty("--dayGap", "7px");
+      root.style.setProperty("--numSize", "12px");
+      root.style.setProperty("--pillSize", "11.5px");
+      root.style.setProperty("--pillPadY", "6px");
+      root.style.setProperty("--pillPadX", "10px");
+    } else {
+      root.style.setProperty("--dayMinH", "84px");
+      root.style.setProperty("--dayPad", "10px");
+      root.style.setProperty("--dayGap", "8px");
+      root.style.setProperty("--numSize", "12px");
+      root.style.setProperty("--pillSize", "12px");
+      root.style.setProperty("--pillPadY", "6px");
+      root.style.setProperty("--pillPadX", "10px");
+    }
+  }
+
+  function rerender() {
+    renderMonth(selectedMonth);
+    if (dayOverlay.classList.contains("open") && activeDay) renderDay(activeDay);
+    if (editOverlay.classList.contains("open") && activeItemId) {
+      const item = loadAll().find(x => x.id === activeItemId);
+      if (!item) closeEdit();
+      else fillEdit(item);
+    }
+  }
 
   function normalizeEvents(apiEvents) {
     const out = [];
     for (const e of (apiEvents || [])) {
       const base = {
-        id: uid(),
-        series_id: uid(),
-        source: "ai",
         title: String(e.title || "").trim() || "Untitled",
         details: String(e.details || "").trim(),
-        all_day: !!e.all_day,
-        start_time: e.start_time ?? null,
-        end_time: e.end_time ?? null
+        source: "ai"
       };
 
-      const daysOfWeek = Array.isArray(e.days_of_week) ? e.days_of_week : null;
+      const type = e.all_day ? "event" : "time";
+      const st = e.start_time ?? null;
+      const et = e.end_time ?? null;
 
       if (isIsoDate(e.date)) {
-        out.push({ ...base, date: e.date });
+        out.push({ id: uid(), date: e.date, ...base, type, start_time: st, end_time: et });
         continue;
       }
 
@@ -695,16 +949,14 @@
         const end = new Date(e.end_date + "T00:00:00");
         if (Number.isNaN(start.valueOf()) || Number.isNaN(end.valueOf()) || start > end) continue;
 
-        const series = base.series_id;
+        const daysOfWeek = Array.isArray(e.days_of_week) ? e.days_of_week : null;
+
         for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-          if (daysOfWeek && daysOfWeek.length) {
-            const wd = d.getDay();
-            if (!daysOfWeek.includes(wd)) continue;
-          }
+          if (daysOfWeek && daysOfWeek.length && !daysOfWeek.includes(d.getDay())) continue;
           const y = d.getFullYear();
           const m = String(d.getMonth() + 1).padStart(2, "0");
           const day = String(d.getDate()).padStart(2, "0");
-          out.push({ ...base, id: uid(), series_id: series, date: `${y}-${m}-${day}` });
+          out.push({ id: uid(), date: `${y}-${m}-${day}`, ...base, type, start_time: st, end_time: et });
         }
       }
     }
@@ -735,175 +987,17 @@
     }
   }
 
-  function applyMonthFit(weeks) {
-    const root = document.documentElement;
-    if (weeks >= 6) {
-      root.style.setProperty("--dayMinH", "68px");
-      root.style.setProperty("--dayPad", "8px");
-      root.style.setProperty("--dayGap", "6px");
-      root.style.setProperty("--numSize", "11px");
-      root.style.setProperty("--eventSize", "11px");
-      root.style.setProperty("--eventPadY", "5px");
-      root.style.setProperty("--eventPadX", "9px");
-    } else if (weeks === 5) {
-      root.style.setProperty("--dayMinH", "76px");
-      root.style.setProperty("--dayPad", "9px");
-      root.style.setProperty("--dayGap", "7px");
-      root.style.setProperty("--numSize", "12px");
-      root.style.setProperty("--eventSize", "11.5px");
-      root.style.setProperty("--eventPadY", "6px");
-      root.style.setProperty("--eventPadX", "10px");
-    } else {
-      root.style.setProperty("--dayMinH", "86px");
-      root.style.setProperty("--dayPad", "10px");
-      root.style.setProperty("--dayGap", "8px");
-      root.style.setProperty("--numSize", "12px");
-      root.style.setProperty("--eventSize", "12px");
-      root.style.setProperty("--eventPadY", "6px");
-      root.style.setProperty("--eventPadX", "10px");
-    }
-  }
-
-  function openAiModal(eventObj) {
-    manualMode = false;
-    manualDate = null;
-    manualEditingId = null;
-
-    activeEventId = eventObj.id || null;
-
-    const date = eventObj.date || "";
-    const timeStr = eventObj.all_day
-      ? "All day"
-      : [eventObj.start_time, eventObj.end_time].filter(Boolean).join("–") || "";
-
-    modalTitle.textContent = eventObj.title || "Event";
-    modalMeta.textContent = timeStr ? `${date} • ${timeStr}` : `${date}`;
-
-    modalBody.style.display = "";
-    modalBody.textContent = (eventObj.details || "").trim() || "(no details)";
-
-    modalForm.style.display = "none";
-    modalSave.style.display = "none";
-
-    modalDelete.disabled = !activeEventId;
-    modalOverlay.classList.add("open");
-    modalOverlay.setAttribute("aria-hidden", "false");
-  }
-
-  function openManualModal(dateKey) {
-    manualMode = true;
-    manualDate = dateKey;
-    activeEventId = null;
-
-    const evts = loadEvents();
-    const existing = evts.find(e => e.source === "manual" && e.date === dateKey) || null;
-    manualEditingId = existing?.id || null;
-
-    modalTitle.textContent = dateKey;
-    modalMeta.textContent = "";
-
-    modalBody.style.display = "none";
-    modalForm.style.display = "";
-    modalSave.style.display = "";
-
-    manualTitleEl.value = existing?.title || "";
-    manualDetailsEl.value = existing?.details || "";
-
-    modalDelete.disabled = !existing;
-    modalOverlay.classList.add("open");
-    modalOverlay.setAttribute("aria-hidden", "false");
-
-    setTimeout(() => manualTitleEl.focus(), 0);
-  }
-
-  function closeModal() {
-    modalOverlay.classList.remove("open");
-    modalOverlay.setAttribute("aria-hidden", "true");
-    activeEventId = null;
-    manualMode = false;
-    manualDate = null;
-    manualEditingId = null;
-  }
-
-  function deleteActiveEvent() {
-    const evts = loadEvents();
-
-    // snapshot BEFORE delete
-    snapshotForUndo();
-
-    if (manualMode) {
-      if (!manualDate) return;
-      const next = evts.filter(e => !(e.source === "manual" && e.date === manualDate));
-      saveEvents(next);
-      closeModal();
-      renderMonth(selectedMonth);
-      setStatus("Deleted");
-      return;
-    }
-
-    if (!activeEventId) return;
-    const next = evts.filter(e => e.id !== activeEventId);
-    saveEvents(next);
-    closeModal();
-    renderMonth(selectedMonth);
-    setStatus("Deleted");
-  }
-
-  function saveManualEvent() {
-    if (!manualDate) return;
-
-    // snapshot BEFORE save/edit
-    snapshotForUndo();
-
-    const title = (manualTitleEl.value || "").trim();
-    const details = (manualDetailsEl.value || "").trim();
-
-    const evts = loadEvents();
-    const next = evts.filter(e => !(e.source === "manual" && e.date === manualDate));
-
-    if (!title && !details) {
-      saveEvents(next);
-      closeModal();
-      renderMonth(selectedMonth);
-      setStatus("Saved");
-      return;
-    }
-
-    next.push({
-      id: manualEditingId || uid(),
-      series_id: manualEditingId || uid(),
-      source: "manual",
-      date: manualDate,
-      title: title || "(note)",
-      details,
-      all_day: true,
-      start_time: null,
-      end_time: null
-    });
-
-    saveEvents(next);
-    closeModal();
-    renderMonth(selectedMonth);
-    setStatus("Saved");
-  }
-
-  modalClose.addEventListener("click", closeModal);
-  modalDelete.addEventListener("click", deleteActiveEvent);
-  modalSave.addEventListener("click", saveManualEvent);
-  modalOverlay.addEventListener("mousedown", (e) => { if (e.target === modalOverlay) closeModal(); });
-
   function renderMonth(m) {
     monthTitleEl.textContent = `${monthNames[m]} ${YEAR}`;
     gridEl.innerHTML = "";
 
-    const evts = loadEvents();
+    const items = loadAll();
     const firstDow = new Date(YEAR, m, 1).getDay();
     const dim = daysInMonth(YEAR, m);
 
     const totalCells = firstDow + dim;
     const weeks = Math.ceil(totalCells / 7);
     applyMonthFit(weeks);
-
     gridEl.style.gridTemplateRows = `repeat(${weeks}, minmax(0, 1fr))`;
 
     for (let i = 0; i < firstDow; i++) {
@@ -917,50 +1011,48 @@
       cell.className = "day";
       const dateKey = isoDate(YEAR, m, day);
 
-      cell.addEventListener("click", (ev) => {
-        if (ev.target && ev.target.classList && ev.target.classList.contains("event")) return;
-        openManualModal(dateKey);
-      });
+      cell.addEventListener("click", () => openDay(dateKey));
 
       const num = document.createElement("div");
       num.className = "num";
       num.textContent = day;
       cell.appendChild(num);
 
-      const todays = evts
-        .filter(e => e.date === dateKey)
-        .sort((a,b) => (a.source === "manual" ? -1 : 1));
+      const todays = items.filter(x => x.date === dateKey);
 
-      todays.slice(0, 3).forEach(e => {
+      const sorted = todays.slice().sort((a,b) => {
+        const ta = a.type === "time" ? 0 : 1;
+        const tb = b.type === "time" ? 0 : 1;
+        if (ta !== tb) return ta - tb;
+        const sa = timeToMin(a.start_time) ?? 9999;
+        const sb = timeToMin(b.start_time) ?? 9999;
+        return sa - sb;
+      });
+
+      sorted.slice(0, 3).forEach(it => {
         const pill = document.createElement("div");
-        pill.className = "event";
-        pill.title = (e.details || e.title || "").trim();
-        pill.textContent = e.all_day ? e.title : `${e.start_time || ""} ${e.title}`.trim();
+        pill.className = "pill";
+        pill.title = (it.details || it.title || "").trim();
+        pill.textContent =
+          it.type === "time"
+            ? `${it.start_time || ""} ${it.title}`.trim()
+            : it.title;
 
         pill.addEventListener("click", (ev) => {
           ev.stopPropagation();
-          if (e.source === "manual") openManualModal(dateKey);
-          else openAiModal(e);
+          openDay(dateKey, it.id);
         });
 
         cell.appendChild(pill);
       });
 
-      if (todays.length > 3) {
+      if (sorted.length > 3) {
         const more = document.createElement("div");
-        more.className = "event more";
-        more.textContent = `+${todays.length - 3}`;
+        more.className = "pill more";
+        more.textContent = `+${sorted.length - 3}`;
         more.addEventListener("click", (ev) => {
           ev.stopPropagation();
-          const lines = todays.map(ev2 => {
-            const timeStr = ev2.all_day ? "All day" : ([ev2.start_time, ev2.end_time].filter(Boolean).join("–") || "");
-            const t = timeStr ? `${timeStr} — ${ev2.title}` : ev2.title;
-            const d = (ev2.details || "").trim();
-            return d ? `${t}\n${d}` : t;
-          }).join("\n\n");
-
-          openAiModal({ id: null, date: dateKey, title: `${dateKey}`, details: lines, all_day: true, start_time: null, end_time: null });
-          modalDelete.disabled = true;
+          openDay(dateKey);
         });
         cell.appendChild(more);
       }
@@ -969,6 +1061,336 @@
     }
   }
 
+  function openDay(dateKey, focusId=null) {
+    activeDay = dateKey;
+    dayTitle.textContent = dateKey;
+    dayMeta.textContent = "";
+    dayOverlay.classList.add("open");
+    dayOverlay.setAttribute("aria-hidden", "false");
+    renderDay(dateKey);
+
+    if (focusId) {
+      const item = loadAll().find(x => x.id === focusId);
+      if (item) openEdit(item.id);
+    }
+  }
+
+  function closeDay() {
+    dayOverlay.classList.remove("open");
+    dayOverlay.setAttribute("aria-hidden", "true");
+    activeDay = null;
+  }
+
+  dayClose.addEventListener("click", closeDay);
+  dayOverlay.addEventListener("mousedown", (e) => { if (e.target === dayOverlay) closeDay(); });
+
+  // Overlap grouping + column assignment
+  function layoutOverlaps(blocks) {
+    const sorted = blocks.slice().sort((a,b) => (a.startMin - b.startMin) || (a.endMin - b.endMin));
+    const out = [];
+
+    let group = [];
+    let groupEnd = -1;
+
+    function flushGroup() {
+      if (!group.length) return;
+
+      const colEnd = [];
+      for (const b of group) {
+        let col = 0;
+        while (col < colEnd.length && colEnd[col] > b.startMin) col++;
+        if (col === colEnd.length) colEnd.push(b.endMin);
+        else colEnd[col] = b.endMin;
+        b.col = col;
+      }
+      const maxCols = colEnd.length || 1;
+      for (const b of group) b.colCount = maxCols;
+
+      out.push(...group);
+      group = [];
+      groupEnd = -1;
+    }
+
+    for (const b of sorted) {
+      if (!group.length) {
+        group = [b];
+        groupEnd = b.endMin;
+      } else if (b.startMin < groupEnd) {
+        group.push(b);
+        groupEnd = Math.max(groupEnd, b.endMin);
+      } else {
+        flushGroup();
+        group = [b];
+        groupEnd = b.endMin;
+      }
+    }
+    flushGroup();
+    return out;
+  }
+
+  // ✅ MONTH-STYLE FIT: shrink columns to fit panel width
+  function renderDay(dateKey) {
+    const items = loadAll().filter(x => x.date === dateKey);
+
+    timelineEl.innerHTML = "";
+    const H = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--timelineHourH")) || 40;
+
+    for (let h = 0; h < 24; h++) {
+      const hour = document.createElement("div");
+      hour.className = "hour";
+      hour.style.top = (h * H) + "px";
+      const label = document.createElement("div");
+      label.className = "hourLabel";
+      label.textContent = `${String(h).padStart(2,"0")}:00`;
+      hour.appendChild(label);
+      timelineEl.appendChild(hour);
+    }
+
+    const timed = items.filter(x => x.type === "time");
+    const blocksRaw = timed.map(it => {
+      const st = timeToMin(it.start_time);
+      const et = timeToMin(it.end_time);
+
+      const startMin = clamp((st ?? 9*60), 0, 24*60);
+      const endMin = clamp(Math.max((et ?? (startMin + 60)), startMin + 15), 0, 24*60);
+
+      return { item: it, startMin, endMin };
+    });
+
+    const laid = layoutOverlaps(blocksRaw);
+
+    const padL = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--timelinePadL")) || 64;
+    const padR = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--timelinePadR")) || 12;
+    const gap  = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--timelineGap")) || 10;
+
+    const maxCols = laid.reduce((m,b) => Math.max(m, b.colCount || 1), 1);
+
+    // get actual panel width
+    const wrap = timelineEl.parentElement; // .timelineWrap
+    const wrapW = wrap ? wrap.clientWidth : 600;
+
+    // fixed width: timeline matches the wrap
+    timelineEl.style.width = wrapW + "px";
+
+    // available space for columns
+    const avail = Math.max(120, wrapW - padL - padR);
+
+    // shrink columns to fit (like month compress)
+    let colW = Math.floor((avail - (maxCols - 1) * gap) / maxCols);
+
+    // allow it to get small, but keep clickable
+    colW = Math.max(60, colW);
+
+    // compact text when tight
+    const useCompact = colW <= 110;
+
+    laid.forEach(b => {
+      const it = b.item;
+      const top = (b.startMin / 60) * H;
+      const height = ((b.endMin - b.startMin) / 60) * H;
+
+      const left = padL + (b.col * (colW + gap));
+
+      const el = document.createElement("div");
+      el.className = "tBlock" + (useCompact ? " compact" : "");
+      el.style.top = top + "px";
+      el.style.height = Math.max(28, height) + "px";
+      el.style.left = left + "px";
+      el.style.width = colW + "px";
+
+      const t = document.createElement("div");
+      t.className = "tTitle";
+      t.textContent = it.title;
+
+      const meta = document.createElement("div");
+      meta.className = "tMeta";
+      const range = (it.start_time && it.end_time) ? `${it.start_time}–${it.end_time}`
+                  : (it.start_time ? `${it.start_time}` : "time");
+      meta.textContent = range;
+
+      el.appendChild(t);
+      el.appendChild(meta);
+      el.title = (it.details || it.title || "").trim();
+      el.addEventListener("click", () => openEdit(it.id));
+      timelineEl.appendChild(el);
+    });
+
+    eventsListEl.innerHTML = "";
+    const events = items.filter(x => x.type === "event");
+    events.forEach(it => {
+      const card = document.createElement("div");
+      card.className = "eventCard";
+      const t = document.createElement("div");
+      t.className = "tTitle";
+      t.textContent = it.title;
+      const meta = document.createElement("div");
+      meta.className = "tMeta";
+      meta.textContent = it.details || "";
+      card.title = (it.details || it.title || "").trim();
+      card.appendChild(t);
+      card.appendChild(meta);
+      card.addEventListener("click", () => openEdit(it.id));
+      eventsListEl.appendChild(card);
+    });
+
+    if (wrap) wrap.scrollTop = 8 * H - 30;
+  }
+
+  addTimedBtn.addEventListener("click", () => {
+    if (!activeDay) return;
+    openEdit(null, { date: activeDay, type: "time" });
+  });
+  addEventBtn.addEventListener("click", () => {
+    if (!activeDay) return;
+    openEdit(null, { date: activeDay, type: "event" });
+  });
+
+  function openEdit(id, preset=null) {
+    activeItemId = id || null;
+
+    const dateKey = preset?.date || activeDay || "";
+    editTitleTop.textContent = id ? "Edit item" : "New item";
+    editMetaTop.textContent = dateKey;
+
+    let item = null;
+    if (id) item = loadAll().find(x => x.id === id) || null;
+
+    if (!item && preset) {
+      item = {
+        id: null,
+        date: dateKey,
+        title: "",
+        details: "",
+        type: preset.type || "event",
+        start_time: null,
+        end_time: null,
+        source: "manual"
+      };
+    }
+
+    fillEdit(item);
+
+    editOverlay.classList.add("open");
+    editOverlay.setAttribute("aria-hidden", "false");
+    setTimeout(() => editTitle.focus(), 0);
+  }
+
+  function fillEdit(item) {
+    if (!item) return;
+
+    editType.value = item.type || "event";
+    editTitle.value = item.title || "";
+    editDetails.value = item.details || "";
+
+    editStart.value = item.type === "time" ? (item.start_time || "") : "";
+    editEnd.value = item.type === "time" ? (item.end_time || "") : "";
+
+    editDelete.disabled = !activeItemId;
+    syncTimeInputs();
+  }
+
+  function syncTimeInputs() {
+    const isTimed = editType.value === "time";
+    editStart.disabled = !isTimed;
+    editEnd.disabled = !isTimed;
+    editStart.style.opacity = isTimed ? "1" : ".55";
+    editEnd.style.opacity = isTimed ? "1" : ".55";
+  }
+  editType.addEventListener("change", syncTimeInputs);
+
+  function closeEdit() {
+    editOverlay.classList.remove("open");
+    editOverlay.setAttribute("aria-hidden", "true");
+    activeItemId = null;
+  }
+  editClose.addEventListener("click", closeEdit);
+  editOverlay.addEventListener("mousedown", (e) => { if (e.target === editOverlay) closeEdit(); });
+
+  function saveEdit() {
+    const all = loadAll();
+
+    const type = editType.value;
+    const title = (editTitle.value || "").trim();
+    const details = (editDetails.value || "").trim();
+    const finalTitle = title || "(untitled)";
+    const dateKey = editMetaTop.textContent || activeDay;
+    if (!dateKey) return;
+
+    let st = null, et = null;
+    if (type === "time") {
+      st = (editStart.value || "").trim();
+      et = (editEnd.value || "").trim();
+      if (st && !isTime(st)) st = null;
+      if (et && !isTime(et)) et = null;
+      if (st === "") st = null;
+      if (et === "") et = null;
+    }
+
+    pushUndoSnapshot();
+
+    if (activeItemId) {
+      const idx = all.findIndex(x => x.id === activeItemId);
+      if (idx >= 0) {
+        all[idx] = {
+          ...all[idx],
+          date: dateKey,
+          type,
+          title: finalTitle,
+          details,
+          start_time: type === "time" ? st : null,
+          end_time: type === "time" ? et : null
+        };
+      }
+    } else {
+      all.push({
+        id: uid(),
+        date: dateKey,
+        type,
+        title: finalTitle,
+        details,
+        start_time: type === "time" ? st : null,
+        end_time: type === "time" ? et : null,
+        source: "manual"
+      });
+    }
+
+    saveAll(all);
+    updateUndoRedoUI();
+    closeEdit();
+    renderMonth(selectedMonth);
+    if (dayOverlay.classList.contains("open") && activeDay) renderDay(activeDay);
+    setStatus("Saved");
+  }
+
+  function deleteEdit() {
+    if (!activeItemId) return;
+    const all = loadAll();
+
+    pushUndoSnapshot();
+    saveAll(all.filter(x => x.id !== activeItemId));
+    updateUndoRedoUI();
+
+    closeEdit();
+    renderMonth(selectedMonth);
+    if (dayOverlay.classList.contains("open") && activeDay) renderDay(activeDay);
+    setStatus("Deleted");
+  }
+
+  editSave.addEventListener("click", saveEdit);
+  editDelete.addEventListener("click", deleteEdit);
+
+  // ✅ Enter saves (Shift+Enter makes newline only in details)
+  editOverlay.addEventListener("keydown", (e) => {
+    if (!editOverlay.classList.contains("open")) return;
+    if (e.key !== "Enter") return;
+
+    if (e.shiftKey && e.target === editDetails) return;
+
+    e.preventDefault();
+    saveEdit();
+  }, true);
+
+  /* images */
   function refreshThumbs() {
     thumbsEl.innerHTML = "";
     images.forEach(img => {
@@ -982,8 +1404,7 @@
     for (const f of files) if (f.type && f.type.startsWith("image/")) images.push(f);
     refreshThumbs();
   }
-
-  dropEl.addEventListener("dragover", (e) => { e.preventDefault(); });
+  dropEl.addEventListener("dragover", (e) => e.preventDefault());
   dropEl.addEventListener("drop", (e) => { e.preventDefault(); addFiles(e.dataTransfer.files); });
 
   imgBtn.addEventListener("click", () => fileEl.click());
@@ -996,26 +1417,20 @@
   });
 
   wipeAllBtn.addEventListener("click", () => {
-    // snapshot BEFORE wipe
-    snapshotForUndo();
-
-    localStorage.removeItem("events_2026");
-    closeModal();
+    pushUndoSnapshot();
+    saveAll([]);
+    updateUndoRedoUI();
+    closeEdit();
+    closeDay();
     renderMonth(selectedMonth);
     setStatus("Wiped");
   });
-
-  function clamp(n, min, max){ return Math.min(max, Math.max(min, n)); }
-  function prevMonth(){ selectedMonth = clamp(selectedMonth - 1, 0, 11); renderMonthBar(); renderMonth(selectedMonth); }
-  function nextMonth(){ selectedMonth = clamp(selectedMonth + 1, 0, 11); renderMonthBar(); renderMonth(selectedMonth); }
 
   async function addToCalendar() {
     const text = textEl.value.trim();
     if (!text && images.length === 0) return;
 
-    // snapshot BEFORE AI add
-    snapshotForUndo();
-
+    pushUndoSnapshot();
     setStatus("…");
 
     const fd = new FormData();
@@ -1030,11 +1445,12 @@
       if (!resp.ok) throw new Error("Request failed");
 
       const normalized = normalizeEvents(data.events || []);
-      if (normalized.length > 0) {
-        const evts = loadEvents();
-        evts.push(...normalized);
-        saveEvents(evts);
+      if (normalized.length) {
+        const all = loadAll();
+        all.push(...normalized);
+        saveAll(all);
         renderMonth(selectedMonth);
+        if (dayOverlay.classList.contains("open") && activeDay) renderDay(activeDay);
         setStatus(`+${normalized.length}`);
       } else {
         setStatus("0");
@@ -1045,53 +1461,68 @@
       fileEl.value = "";
       refreshThumbs();
     } catch {
-      // undo snapshot still exists; leave it so you can press Undo
       setStatus("Error");
     } finally {
-      updateUndoUI();
+      updateUndoRedoUI();
     }
   }
 
-  window.addEventListener("keydown", (e) => {
-    if (modalOverlay.classList.contains("open")) {
-      if (e.key === "Escape") { e.preventDefault(); closeModal(); return; }
-      if ((e.key === "d" || e.key === "D")) { e.preventDefault(); deleteActiveEvent(); return; }
-      if (manualMode && (e.key === "s" || e.key === "S") && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault(); saveManualEvent(); return;
-      }
-      if ((e.key === "u" || e.key === "U") && !e.metaKey && !e.ctrlKey && !e.altKey) {
-        e.preventDefault(); doUndo(); return;
-      }
-      return;
-    }
-
+  function isTypingNow() {
     const el = document.activeElement;
-    const tag = el?.tagName?.toLowerCase();
-    const isTyping = tag === "textarea" || tag === "input";
-
-    if (!isTyping && (e.key === "t" || e.key === "T")) { e.preventDefault(); textEl.focus(); return; }
-
-    if (!isTyping) {
-      if (e.key === "ArrowLeft") { e.preventDefault(); prevMonth(); return; }
-      if (e.key === "ArrowRight") { e.preventDefault(); nextMonth(); return; }
-      if ((e.key === "u" || e.key === "U") && !e.metaKey && !e.ctrlKey && !e.altKey) {
-        e.preventDefault(); doUndo(); return;
-      }
+    if (!el) return false;
+    const tag = (el.tagName || "").toLowerCase();
+    if (el.isContentEditable) return true;
+    if (tag === "textarea") return true;
+    if (tag === "input") {
+      const type = (el.getAttribute("type") || "text").toLowerCase();
+      return ["text","search","email","url","tel","password","number","time"].includes(type);
     }
+    return false;
+  }
 
-    // AI send: ONLY Alt/Option + Enter in textarea
-    if (tag === "textarea" && e.key === "Enter") {
+  window.addEventListener("keydown", (e) => {
+    // Main textbox: ONLY Alt/Option + Enter submits to AI
+    if (document.activeElement === textEl && e.key === "Enter") {
       if (e.altKey) { e.preventDefault(); addToCalendar(); return; }
       return;
     }
-  });
 
-  // init
-  loadEvents();
-  renderMonthBar();
-  renderDow();
-  renderMonth(selectedMonth);
-  updateUndoUI();
+    if (e.key === "Escape") {
+      if (editOverlay.classList.contains("open")) { e.preventDefault(); closeEdit(); return; }
+      if (dayOverlay.classList.contains("open")) { e.preventDefault(); closeDay(); return; }
+    }
+
+    if (isTypingNow()) return;
+
+    const k = (e.key || "").toLowerCase();
+    if (k === "t") { e.preventDefault(); textEl.focus(); return; }
+    if (k === "u") { e.preventDefault(); doUndo(); return; }
+    if (k === "r") { e.preventDefault(); doRedo(); return; }
+
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      selectedMonth = clamp(selectedMonth - 1, 0, 11);
+      renderMonthBar();
+      renderMonth(selectedMonth);
+      return;
+    }
+    if (e.key === "ArrowRight") {
+      e.preventDefault();
+      selectedMonth = clamp(selectedMonth + 1, 0, 11);
+      renderMonthBar();
+      renderMonth(selectedMonth);
+      return;
+    }
+  }, true);
+
+  function renderEverything() {
+    renderMonthBar();
+    renderDow();
+    renderMonth(selectedMonth);
+    updateUndoRedoUI();
+  }
+
+  renderEverything();
 </script>
 </body>
 </html>
