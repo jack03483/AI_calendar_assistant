@@ -3,315 +3,521 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>2026 Calendar + AI Inbox</title>
+  <title>2026 Calendar</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+
   <style>
     :root{
-      --bg: #f6f8fc;
-      --card: #ffffff;
-      --text: #0b1220;
-      --muted: rgba(11,18,32,.6);
-      --line: rgba(11,18,32,.12);
-      --blue: #2563eb;
-      --blue2: #1d4ed8;
-      --blueSoft: rgba(37,99,235,.12);
-      --shadow: 0 10px 30px rgba(15, 23, 42, .08);
-      --radius: 16px;
+      --bg0:#02040a;
+      --bg1:#030816;
+      --panel: rgba(6, 10, 22, .78);
+      --panel2: rgba(6, 10, 22, .56);
+      --border: rgba(51, 199, 255, .26);
+      --border2: rgba(51, 199, 255, .18);
+      --text: rgba(103, 232, 255, .95);
+      --text2: rgba(51, 199, 255, .95);
+      --muted: rgba(103, 232, 255, .78);
+      --shadow: 0 14px 52px rgba(0,0,0,.62);
+      --glow: 0 0 22px rgba(51,199,255,.16), 0 0 52px rgba(51,199,255,.10);
+      --radius: 18px;
+      --dangerBorder: rgba(255, 80, 120, .28);
     }
 
     * { box-sizing: border-box; }
-    html, body { height: 100%; }
-    body {
-      margin: 0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      background: radial-gradient(1200px 600px at 20% 0%, rgba(37,99,235,.10), transparent 60%),
-                  radial-gradient(900px 500px at 80% 10%, rgba(29,78,216,.08), transparent 55%),
-                  var(--bg);
+    html, body{ height:100%; overflow:hidden; }
+
+    body{
+      margin:0;
       color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      font-size: 16px;
+      background:
+        radial-gradient(1000px 720px at 50% 10%, rgba(51,199,255,.105), transparent 62%),
+        radial-gradient(1000px 720px at 50% 90%, rgba(51,199,255,.105), transparent 62%),
+        radial-gradient(900px 650px at 50% 50%, rgba(103,232,255,.070), transparent 68%),
+        linear-gradient(180deg, var(--bg1), var(--bg0));
+      padding: 16px;
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      background:
+        linear-gradient(rgba(51,199,255,.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(51,199,255,.055) 1px, transparent 1px);
+      background-size: 72px 72px, 72px 72px;
+      opacity:.34;
+      mix-blend-mode: screen;
     }
 
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--line);
-      background: rgba(255,255,255,.75);
-      backdrop-filter: blur(10px);
-    }
-
-    .topbar {
-      max-width: 1100px;
+    .wrap{
+      width: min(1120px, calc(100% - 0px));
+      height: calc(100vh - 32px);
       margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      position: relative;
+      z-index: 2;
+      overflow:hidden;
     }
 
-    .brand {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    .brand strong { font-size: 14px; }
-    .brand span { font-size: 12px; color: var(--muted); }
-
-    .wrap {
-      max-width: 1100px;
-      margin: 16px auto 0 auto;
-      padding: 0 16px 120px 16px; /* leave room for composer */
-    }
-
-    /* Month selector */
-    .monthbar {
-      display: grid;
-      grid-template-columns: repeat(12, minmax(0, 1fr));
-      gap: 8px;
-      margin: 14px 0 14px 0;
-    }
-    .mbtn {
-      appearance: none;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,.7);
-      border-radius: 12px;
-      padding: 10px 0;
-      font-size: 12px;
-      cursor: pointer;
-      transition: transform .08s ease, background .2s ease, border-color .2s ease;
-      min-width: 0;
-    }
-    .mbtn:hover { transform: translateY(-1px); border-color: rgba(37,99,235,.35); }
-    .mbtn.active {
-      background: var(--blueSoft);
-      border-color: rgba(37,99,235,.55);
-      color: var(--blue2);
-      font-weight: 600;
-    }
-
-    /* Month card */
-    .monthCard {
-      background: rgba(255,255,255,.85);
-      border: 1px solid var(--line);
+    .card{
+      background: linear-gradient(180deg, var(--panel), var(--panel2));
+      border: 1px solid rgba(51, 199, 255, .26);
       border-radius: var(--radius);
-      box-shadow: var(--shadow);
+      box-shadow: 0 14px 52px rgba(0,0,0,.62), var(--glow);
+      padding: 18px;
+      backdrop-filter: blur(10px);
+      position: relative;
       overflow: hidden;
+      display:flex;
+      flex-direction:column;
+      gap: 14px;
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+    .card::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius: var(--radius);
+      box-shadow: 0 0 0 1px rgba(51,199,255,.12) inset;
+      pointer-events:none;
     }
 
-    .monthHeader {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--line);
-      background: linear-gradient(to right, rgba(37,99,235,.10), rgba(255,255,255,0));
+    .topRow{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:space-between;
+      align-items:center;
+      gap: 12px;
+      position: relative;
+      z-index: 1;
+    }
+    .title{
+      margin:0;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: .2px;
+      color: rgba(192,247,255,.94);
+      user-select:none;
+    }
+    .rightRow{
+      display:flex;
+      gap: 12px;
+      align-items:center;
     }
 
-    .monthHeader h2 {
+    button{
+      border: 1px solid rgba(103,232,255,.48);
+      background: linear-gradient(180deg, rgba(51,199,255,.20), rgba(51,199,255,.08));
+      color: rgba(51,199,255,.95);
+      padding: 12px 16px;
+      border-radius: 999px;
+      cursor:pointer;
+      font-weight: 800;
+      letter-spacing: .22px;
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,.38) inset,
+        0 0 26px rgba(51,199,255,.14),
+        0 0 44px rgba(51,199,255,.08);
+      transition: transform .12s, box-shadow .12s, border-color .12s, filter .12s;
+      user-select:none;
+      font-size: 14px;
+      filter: saturate(1.05);
+    }
+    button:hover{
+      transform: translateY(-1px);
+      border-color: rgba(103,232,255,.75);
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,.38) inset,
+        0 0 34px rgba(51,199,255,.18),
+        0 0 58px rgba(51,199,255,.11);
+      filter: saturate(1.18) brightness(1.03);
+    }
+    button:disabled{ opacity:.55; cursor:not-allowed; transform:none; }
+
+    .btnSubtle{
+      padding: 11px 14px;
+      font-size: 13px;
+      font-weight: 850;
+      opacity: .94;
+      background: rgba(2,6,23,.62);
+      border-color: rgba(103,232,255,.22);
+      box-shadow: 0 0 0 1px rgba(0,0,0,.38) inset, 0 0 18px rgba(51,199,255,.08);
+      color: rgba(192,247,255,.92);
+    }
+
+    .monthbar{
+      display:grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+    }
+    .mbtn{
+      padding: 11px 0;
+      font-size: 13px;
+      border-radius: 999px;
+      min-width: 0;
+      text-align:center;
+      background: rgba(2,6,23,.62);
+      border-color: rgba(103,232,255,.22);
+      color: rgba(192,247,255,.92);
+      box-shadow: 0 0 0 1px rgba(0,0,0,.38) inset, 0 0 18px rgba(51,199,255,.08);
+    }
+    .mbtn.active{
+      background: linear-gradient(180deg, rgba(51,199,255,.26), rgba(51,199,255,.10));
+      border-color: rgba(103,232,255,.58);
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,.38) inset,
+        0 0 30px rgba(51,199,255,.16),
+        0 0 56px rgba(51,199,255,.10);
+    }
+
+    .calendar{
+      flex: 1 1 auto;
+      min-height: 0;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .monthTitle{
       margin: 0;
       font-size: 16px;
-      letter-spacing: .2px;
+      letter-spacing: .3px;
+      color: rgba(192,247,255,.94);
+      text-align: left;
+      user-select:none;
     }
 
-    .monthHeader .hint {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .dow, .grid {
-      display: grid;
+    .dow, .grid{
+      display:grid;
       grid-template-columns: repeat(7, minmax(0, 1fr));
-      gap: 8px;
-      padding: 12px;
+      gap: 10px;
     }
-
-    .dow div {
+    .dow div{
       font-size: 12px;
-      color: var(--muted);
-      text-align: center;
-      user-select: none;
+      color: rgba(103,232,255,.78);
+      text-align:center;
+      user-select:none;
+      padding: 2px 0;
     }
 
-    /* ✅ Critical: prevent grid from being pushed wide */
-    .grid { width: 100%; }
+    .grid{
+      flex: 1 1 auto;
+      min-height: 0;
+      align-content: stretch;
+    }
 
-    .day {
-      border: 1px solid rgba(11,18,32,.08);
-      background: rgba(255,255,255,.9);
-      border-radius: 14px;
-      min-height: 78px;
-      padding: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-
-      /* ✅ Critical: allow grid items to shrink */
+    .day{
+      border-radius: 18px;
+      border: 1px solid rgba(51,199,255,.18);
+      background: linear-gradient(180deg, rgba(2,6,23,.74), rgba(2,6,23,.46));
+      box-shadow: 0 0 0 1px rgba(0,0,0,.38) inset, 0 0 18px rgba(51,199,255,.08);
+      padding: var(--dayPad, 10px);
+      min-height: var(--dayMinH, 86px);
+      display:flex;
+      flex-direction:column;
+      gap: var(--dayGap, 8px);
       min-width: 0;
-
-      /* ✅ Critical: clip contents so nothing changes column width */
       overflow: hidden;
+      cursor: pointer;
     }
-
-    .day.muted {
-      background: rgba(255,255,255,.55);
-      border-style: dashed;
+    .day.muted{
       opacity: .55;
+      border-style: dashed;
+      background: rgba(2,6,23,.35);
+      cursor: default;
+    }
+    .num{
+      font-size: var(--numSize, 12px);
+      color: rgba(192,247,255,.84);
+      user-select:none;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
     }
 
-    .num {
-      font-size: 12px;
-      color: rgba(11,18,32,.75);
-      user-select: none;
-    }
-
-    /* ✅ Event pills will NOT change layout */
-    .event {
-      font-size: 12px;
-      padding: 4px 8px;
+    .event{
+      font-size: var(--eventSize, 12px);
+      padding: var(--eventPadY, 6px) var(--eventPadX, 10px);
       border-radius: 999px;
-      border: 1px solid rgba(37,99,235,.25);
-      background: rgba(37,99,235,.08);
-      color: rgba(29,78,216,.95);
+      border: 1px solid rgba(103,232,255,.22);
+      background: rgba(51,199,255,.10);
+      color: rgba(192,247,255,.94);
+      box-shadow: 0 0 0 1px rgba(0,0,0,.35) inset, 0 0 16px rgba(51,199,255,.08);
+      cursor: pointer;
 
-      /* ✅ Critical: keep on one line and clip */
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-
-      /* ✅ Critical: allow shrink inside flex */
       min-width: 0;
+
+      transition: transform .10s ease, border-color .12s ease, filter .12s ease;
+    }
+    .event:hover{
+      transform: translateY(-1px);
+      border-color: rgba(103,232,255,.55);
+      filter: brightness(1.03) saturate(1.08);
+    }
+    .event.more{
+      background: rgba(2,6,23,.55);
+      color: rgba(103,232,255,.82);
     }
 
-    .more {
-      border: 1px solid rgba(11,18,32,.12);
-      background: rgba(11,18,32,.04);
-      color: rgba(11,18,32,.75);
-    }
-
-    /* Composer */
-    .composer {
-      position: fixed;
-      left: 0; right: 0; bottom: 0;
-      z-index: 30;
-      border-top: 1px solid var(--line);
-      background: rgba(255,255,255,.80);
-      backdrop-filter: blur(10px);
-    }
-
-    .composerInner {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 12px 16px;
-      display: grid;
+    .composer{
+      border-top: 1px solid rgba(51,199,255,.16);
+      padding-top: 12px;
+      display:flex;
+      flex-direction:column;
       gap: 10px;
     }
 
-    textarea {
+    textarea{
       width: 100%;
-      min-height: 76px;
-      resize: vertical;
-      padding: 12px 12px;
+      color: rgba(51,199,255,.95);
+      background: rgba(2,6,23,.60);
+      border: 1px solid rgba(51,199,255,.18);
       border-radius: 14px;
-      border: 1px solid rgba(11,18,32,.16);
-      background: rgba(255,255,255,.9);
+      padding: 14px 16px;
       outline: none;
-      font-size: 13px;
+      font-size: 15px;
+      line-height: 1.55;
+      letter-spacing: .1px;
+      caret-color: rgba(103,232,255,.95);
+      transition: box-shadow .18s, border-color .18s, transform .18s;
+      resize: none;
+      height: 86px;
     }
-    textarea:focus {
-      border-color: rgba(37,99,235,.55);
-      box-shadow: 0 0 0 4px rgba(37,99,235,.12);
-    }
-
-    .drop {
-      border: 1.5px dashed rgba(11,18,32,.25);
-      border-radius: 14px;
-      padding: 10px;
-      background: rgba(255,255,255,.65);
-      display: grid;
-      gap: 8px;
+    textarea:focus{
+      border-color: rgba(103,232,255,.58);
+      box-shadow: 0 0 0 3px rgba(51,199,255,.14), 0 0 26px rgba(51,199,255,.18);
+      transform: translateY(-1px);
     }
 
-    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-
-    button {
-      padding: 10px 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(11,18,32,.16);
-      background: rgba(255,255,255,.9);
-      cursor: pointer;
-      font-size: 13px;
-      transition: transform .08s ease, border-color .2s ease, box-shadow .2s ease;
-    }
-    button:hover { transform: translateY(-1px); border-color: rgba(37,99,235,.35); }
-    button:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
-
-    .primary {
-      border-color: rgba(37,99,235,.45);
-      background: linear-gradient(to bottom, rgba(37,99,235,.12), rgba(37,99,235,.06));
-      color: rgba(29,78,216,.95);
-      font-weight: 600;
+    .drop{
+      border: 1px solid rgba(51,199,255,.22);
+      background: rgba(2,6,23,.55);
+      border-radius: 18px;
+      padding: 12px;
+      box-shadow: 0 0 0 1px rgba(0,0,0,.38) inset, 0 0 18px rgba(51,199,255,.08);
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
     }
 
-    .thumbs { display: flex; gap: 8px; flex-wrap: wrap; }
-    .thumb {
-      width: 72px; height: 72px;
-      border-radius: 14px;
-      border: 1px solid rgba(11,18,32,.14);
+    input[type="file"]{ display:none; }
+
+    .thumbs{ display:flex; flex-wrap:wrap; gap: 10px; }
+    .thumb{
+      width: 76px; height: 76px;
+      border-radius: 18px;
+      border: 1px solid rgba(51,199,255,.18);
+      background: rgba(2,6,23,.60);
+      box-shadow: 0 0 0 1px rgba(0,0,0,.38) inset, 0 0 18px rgba(51,199,255,.08);
       object-fit: cover;
-      background: #fff;
     }
-    .status { font-size: 12px; color: rgba(11,18,32,.75); }
 
-    /* Mobile: allow month buttons to wrap more nicely */
-    @media (max-width: 900px) {
-      .monthbar { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    .status{
+      font-size: 13px;
+      color: rgba(103,232,255,.82);
+      line-height: 1.35;
+      max-width: 220px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      user-select:none;
     }
-    @media (max-width: 520px) {
-      .monthbar { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-      .day { min-height: 70px; }
+
+    .modalOverlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.58);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index: 9999;
+      padding: 16px;
+    }
+    .modalOverlay.open{ display:flex; }
+
+    .modal{
+      width: min(720px, 100%);
+      background: linear-gradient(180deg, rgba(6,10,22,.92), rgba(6,10,22,.72));
+      border: 1px solid rgba(51,199,255,.26);
+      border-radius: 18px;
+      box-shadow: 0 14px 52px rgba(0,0,0,.62), var(--glow);
+      padding: 16px;
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow:hidden;
+    }
+    .modal::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius: 18px;
+      box-shadow: 0 0 0 1px rgba(51,199,255,.12) inset;
+      pointer-events:none;
+    }
+    .modalTop{
+      display:flex;
+      gap: 12px;
+      justify-content:space-between;
+      align-items:flex-start;
+      position: relative;
+      z-index: 1;
+    }
+    .modalTitle{
+      margin: 0;
+      font-size: 16px;
+      color: rgba(192,247,255,.94);
+      letter-spacing: .25px;
+    }
+    .modalMeta{
+      color: rgba(103,232,255,.78);
+      font-size: 13px;
+      margin-top: 6px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .modalBody{
+      position: relative;
+      z-index: 1;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(51,199,255,.14);
+      color: rgba(192,247,255,.90);
+      font-family: "Source Serif 4", ui-serif, Georgia, "Times New Roman", serif;
+      font-size: 18px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      max-height: min(60vh, 520px);
+      overflow:auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(103,232,255,.55) rgba(2,6,23,.30);
+    }
+    .modalBody::-webkit-scrollbar { width: 10px; }
+    .modalBody::-webkit-scrollbar-track { background: rgba(2,6,23,.30); border-radius: 10px; }
+    .modalBody::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, rgba(103,232,255,.65), rgba(51,199,255,.45));
+      border-radius: 10px;
+    }
+
+    .modalForm{
+      margin-top: 12px;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+    }
+    .modalInput{
+      width: 100%;
+      color: rgba(51,199,255,.95);
+      background: rgba(2,6,23,.60);
+      border: 1px solid rgba(51,199,255,.18);
+      border-radius: 14px;
+      padding: 12px 14px;
+      outline: none;
+      font-size: 15px;
+      line-height: 1.35;
+      caret-color: rgba(103,232,255,.95);
+    }
+    .modalInput:focus{
+      border-color: rgba(103,232,255,.58);
+      box-shadow: 0 0 0 3px rgba(51,199,255,.14), 0 0 26px rgba(51,199,255,.18);
+    }
+    .modalText{
+      height: 180px;
+      resize: none;
+      font-family: "Source Serif 4", ui-serif, Georgia, "Times New Roman", serif;
+      font-size: 18px;
+      line-height: 1.6;
+    }
+
+    .dangerBtn{
+      border: 1px solid var(--dangerBorder);
+      background: linear-gradient(180deg, rgba(255,80,120,.18), rgba(255,80,120,.08));
+      color: rgba(255, 200, 220, .98);
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,.38) inset,
+        0 0 26px rgba(255,80,120,.10),
+        0 0 44px rgba(255,80,120,.06);
+    }
+    .dangerBtn:hover{
+      border-color: rgba(255,80,120,.55);
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,.38) inset,
+        0 0 34px rgba(255,80,120,.13),
+        0 0 58px rgba(255,80,120,.08);
+      filter: saturate(1.10) brightness(1.02);
+    }
+
+    @media (max-width: 920px){
+      .monthbar{ grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    }
+    @media (max-width: 520px){
+      .monthbar{ grid-template-columns: repeat(4, minmax(0, 1fr)); }
     }
   </style>
 </head>
+
 <body>
-  <header>
-    <div class="topbar">
-      <div class="brand">
-        <strong>2026 Calendar</strong>
-        <span>Type or drop images below — AI files it into the right date.</span>
-      </div>
-      <div style="font-size:12px;color:var(--muted);">Local • Private (key stays on server)</div>
-    </div>
-  </header>
-
   <div class="wrap">
-    <div id="monthbar" class="monthbar"></div>
-
-    <div class="monthCard">
-      <div class="monthHeader">
-        <h2 id="monthTitle"></h2>
-        <div class="hint">Click a month above to switch</div>
+    <div class="card">
+      <div class="topRow">
+        <div class="title">2026 Calendar</div>
+        <div class="rightRow">
+          <button id="imgBtn" class="btnSubtle" type="button">Add images</button>
+          <button id="clearImgs" class="btnSubtle" type="button">Clear</button>
+          <div id="status" class="status"></div>
+        </div>
       </div>
-      <div class="dow" id="dow"></div>
-      <div class="grid" id="grid"></div>
+
+      <div id="monthbar" class="monthbar"></div>
+
+      <div class="calendar">
+        <div id="monthTitle" class="monthTitle"></div>
+        <div class="dow" id="dow"></div>
+        <div class="grid" id="grid"></div>
+      </div>
+
+      <div class="composer">
+        <textarea id="text" spellcheck="false" autocorrect="off" autocapitalize="off" autocomplete="off"></textarea>
+        <div id="drop" class="drop"><div class="thumbs" id="thumbs"></div></div>
+        <input id="file" type="file" accept="image/*" multiple />
+      </div>
     </div>
   </div>
 
-  <div class="composer">
-    <div class="composerInner">
-      <textarea id="text" placeholder="Example: 'Trip to Ireland from the 5th of Jan to the 16th'"></textarea>
-
-      <div id="drop" class="drop">
-        <div class="row">
-          <strong>Drop images here</strong>
-          <input id="file" type="file" accept="image/*" multiple />
-          <button id="clear" type="button">Clear images</button>
+  <div id="modalOverlay" class="modalOverlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modalTop">
+        <div>
+          <h3 id="modalTitle" class="modalTitle"></h3>
+          <div id="modalMeta" class="modalMeta"></div>
         </div>
-        <div id="thumbs" class="thumbs"></div>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <button id="modalSave" class="btnSubtle" type="button" style="display:none;">Save</button>
+          <button id="modalDelete" class="dangerBtn" type="button">Delete</button>
+          <button id="modalClose" class="btnSubtle" type="button">Close</button>
+        </div>
       </div>
 
-      <div class="row">
-        <button id="add" class="primary" type="button">Add to calendar</button>
-        <button id="wipe" type="button" title="Deletes all saved events">Wipe events</button>
-        <span id="status" class="status"></span>
+      <div id="modalBody" class="modalBody"></div>
+
+      <div id="modalForm" class="modalForm" style="display:none;">
+        <input id="manualTitle" class="modalInput" type="text" />
+        <textarea id="manualDetails" class="modalInput modalText" spellcheck="false" autocorrect="off" autocapitalize="off" autocomplete="off"></textarea>
       </div>
     </div>
   </div>
@@ -331,17 +537,72 @@
   const dropEl = document.getElementById("drop");
   const fileEl = document.getElementById("file");
   const thumbsEl = document.getElementById("thumbs");
-  const addBtn = document.getElementById("add");
-  const clearBtn = document.getElementById("clear");
-  const wipeBtn = document.getElementById("wipe");
+  const imgBtn = document.getElementById("imgBtn");
+  const clearImgsBtn = document.getElementById("clearImgs");
   const statusEl = document.getElementById("status");
+
+  const modalOverlay = document.getElementById("modalOverlay");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalMeta = document.getElementById("modalMeta");
+  const modalBody = document.getElementById("modalBody");
+  const modalClose = document.getElementById("modalClose");
+  const modalDelete = document.getElementById("modalDelete");
+  const modalSave = document.getElementById("modalSave");
+
+  const modalForm = document.getElementById("modalForm");
+  const manualTitleEl = document.getElementById("manualTitle");
+  const manualDetailsEl = document.getElementById("manualDetails");
 
   let images = [];
   let selectedMonth = new Date().getFullYear() === YEAR ? new Date().getMonth() : 0;
 
+  // AI event deletion
+  let activeEventId = null;
+
+  // Manual editor state
+  let manualMode = false;
+  let manualDate = null;          // YYYY-MM-DD
+  let manualEditingId = null;     // existing manual event id or null
+
+  function uid() {
+    return "e_" + Math.random().toString(16).slice(2) + Date.now().toString(16);
+  }
+
+  function stableLegacyId(e) {
+    const s = [
+      e.date || "",
+      e.title || "",
+      e.details || "",
+      e.all_day ? "1" : "0",
+      e.start_time || "",
+      e.end_time || ""
+    ].join("|");
+    let h = 2166136261;
+    for (let i = 0; i < s.length; i++) {
+      h ^= s.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return "legacy_" + (h >>> 0).toString(16);
+  }
+
+  function migrateEvents(evts) {
+    let changed = false;
+    const out = (evts || []).map(e => {
+      const ne = { ...e };
+      if (!ne.id) { ne.id = stableLegacyId(ne); changed = true; }
+      if (!ne.series_id) { ne.series_id = ne.id; changed = true; }
+      if (!("source" in ne)) { ne.source = "ai"; changed = true; } // old stuff treated as ai
+      return ne;
+    });
+    if (changed) localStorage.setItem("events_2026", JSON.stringify(out));
+    return out;
+  }
+
   function loadEvents() {
-    try { return JSON.parse(localStorage.getItem("events_2026") || "[]"); }
-    catch { return []; }
+    try {
+      const evts = JSON.parse(localStorage.getItem("events_2026") || "[]");
+      return migrateEvents(evts);
+    } catch { return []; }
   }
   function saveEvents(evts) { localStorage.setItem("events_2026", JSON.stringify(evts)); }
 
@@ -353,10 +614,15 @@
   function daysInMonth(y, m) { return new Date(y, m + 1, 0).getDate(); }
   function isIsoDate(s) { return typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s); }
 
+  function setStatus(msg) { statusEl.textContent = msg || ""; }
+
   function normalizeEvents(apiEvents) {
     const out = [];
     for (const e of (apiEvents || [])) {
       const base = {
+        id: uid(),
+        series_id: uid(),
+        source: "ai",
         title: String(e.title || "").trim() || "Untitled",
         details: String(e.details || "").trim(),
         all_day: !!e.all_day,
@@ -374,21 +640,18 @@
         const end = new Date(e.end_date + "T00:00:00");
         if (Number.isNaN(start.valueOf()) || Number.isNaN(end.valueOf()) || start > end) continue;
 
+        const series = base.series_id;
         for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
           const y = d.getFullYear();
           const m = String(d.getMonth() + 1).padStart(2, "0");
           const day = String(d.getDate()).padStart(2, "0");
-          out.push({ ...base, date: `${y}-${m}-${day}` });
+          out.push({ ...base, id: uid(), series_id: series, date: `${y}-${m}-${day}` });
         }
         continue;
       }
-
-      out.push({ ...base, date: "2026-01-01", title: "Clarify date", details: base.details || "Couldn't determine a date." });
     }
     return out;
   }
-
-  function setStatus(msg) { statusEl.textContent = msg || ""; }
 
   function renderMonthBar() {
     monthbarEl.innerHTML = "";
@@ -414,6 +677,159 @@
     }
   }
 
+  function applyMonthFit(weeks) {
+    const root = document.documentElement;
+    if (weeks >= 6) {
+      root.style.setProperty("--dayMinH", "68px");
+      root.style.setProperty("--dayPad", "8px");
+      root.style.setProperty("--dayGap", "6px");
+      root.style.setProperty("--numSize", "11px");
+      root.style.setProperty("--eventSize", "11px");
+      root.style.setProperty("--eventPadY", "5px");
+      root.style.setProperty("--eventPadX", "9px");
+    } else if (weeks === 5) {
+      root.style.setProperty("--dayMinH", "76px");
+      root.style.setProperty("--dayPad", "9px");
+      root.style.setProperty("--dayGap", "7px");
+      root.style.setProperty("--numSize", "12px");
+      root.style.setProperty("--eventSize", "11.5px");
+      root.style.setProperty("--eventPadY", "6px");
+      root.style.setProperty("--eventPadX", "10px");
+    } else {
+      root.style.setProperty("--dayMinH", "86px");
+      root.style.setProperty("--dayPad", "10px");
+      root.style.setProperty("--dayGap", "8px");
+      root.style.setProperty("--numSize", "12px");
+      root.style.setProperty("--eventSize", "12px");
+      root.style.setProperty("--eventPadY", "6px");
+      root.style.setProperty("--eventPadX", "10px");
+    }
+  }
+
+  function openAiModal(eventObj) {
+    manualMode = false;
+    manualDate = null;
+    manualEditingId = null;
+
+    activeEventId = eventObj.id || null;
+
+    const date = eventObj.date || "";
+    const timeStr = eventObj.all_day
+      ? "All day"
+      : [eventObj.start_time, eventObj.end_time].filter(Boolean).join("–") || "";
+
+    modalTitle.textContent = eventObj.title || "Event";
+    modalMeta.textContent = timeStr ? `${date} • ${timeStr}` : `${date}`;
+
+    modalBody.style.display = "";
+    modalBody.textContent = (eventObj.details || "").trim() || "(no details)";
+
+    modalForm.style.display = "none";
+    modalSave.style.display = "none";
+
+    modalDelete.disabled = !activeEventId;
+    modalOverlay.classList.add("open");
+    modalOverlay.setAttribute("aria-hidden", "false");
+  }
+
+  function openManualModal(dateKey) {
+    manualMode = true;
+    manualDate = dateKey;
+    activeEventId = null;
+
+    // load existing manual event for that date (single note per day)
+    const evts = loadEvents();
+    const existing = evts.find(e => e.source === "manual" && e.date === dateKey) || null;
+    manualEditingId = existing?.id || null;
+
+    modalTitle.textContent = dateKey;
+    modalMeta.textContent = "";
+
+    modalBody.style.display = "none";
+    modalForm.style.display = "";
+    modalSave.style.display = "";
+
+    manualTitleEl.value = existing?.title || "";
+    manualDetailsEl.value = existing?.details || "";
+
+    modalDelete.disabled = !existing; // only delete if there is something
+    modalOverlay.classList.add("open");
+    modalOverlay.setAttribute("aria-hidden", "false");
+
+    setTimeout(() => manualTitleEl.focus(), 0);
+  }
+
+  function closeModal() {
+    modalOverlay.classList.remove("open");
+    modalOverlay.setAttribute("aria-hidden", "true");
+    activeEventId = null;
+    manualMode = false;
+    manualDate = null;
+    manualEditingId = null;
+  }
+
+  function deleteActiveEvent() {
+    const evts = loadEvents();
+
+    if (manualMode) {
+      if (!manualDate) return;
+      const next = evts.filter(e => !(e.source === "manual" && e.date === manualDate));
+      saveEvents(next);
+      closeModal();
+      renderMonth(selectedMonth);
+      setStatus("Deleted");
+      return;
+    }
+
+    if (!activeEventId) return;
+    const next = evts.filter(e => e.id !== activeEventId);
+    saveEvents(next);
+    closeModal();
+    renderMonth(selectedMonth);
+    setStatus("Deleted");
+  }
+
+  function saveManualEvent() {
+    if (!manualDate) return;
+
+    const title = (manualTitleEl.value || "").trim();
+    const details = (manualDetailsEl.value || "").trim();
+
+    const evts = loadEvents();
+    const next = evts.filter(e => !(e.source === "manual" && e.date === manualDate));
+
+    // If both empty: treat as delete
+    if (!title && !details) {
+      saveEvents(next);
+      closeModal();
+      renderMonth(selectedMonth);
+      setStatus("Saved");
+      return;
+    }
+
+    next.push({
+      id: manualEditingId || uid(),
+      series_id: manualEditingId || uid(),
+      source: "manual",
+      date: manualDate,
+      title: title || "(note)",
+      details,
+      all_day: true,
+      start_time: null,
+      end_time: null
+    });
+
+    saveEvents(next);
+    closeModal();
+    renderMonth(selectedMonth);
+    setStatus("Saved");
+  }
+
+  modalClose.addEventListener("click", closeModal);
+  modalDelete.addEventListener("click", deleteActiveEvent);
+  modalSave.addEventListener("click", saveManualEvent);
+  modalOverlay.addEventListener("mousedown", (e) => { if (e.target === modalOverlay) closeModal(); });
+
   function renderMonth(m) {
     monthTitleEl.textContent = `${monthNames[m]} ${YEAR}`;
     gridEl.innerHTML = "";
@@ -422,7 +838,12 @@
     const firstDow = new Date(YEAR, m, 1).getDay();
     const dim = daysInMonth(YEAR, m);
 
-    // blanks
+    const totalCells = firstDow + dim;
+    const weeks = Math.ceil(totalCells / 7);
+    applyMonthFit(weeks);
+
+    gridEl.style.gridTemplateRows = `repeat(${weeks}, minmax(0, 1fr))`;
+
     for (let i = 0; i < firstDow; i++) {
       const blank = document.createElement("div");
       blank.className = "day muted";
@@ -434,25 +855,54 @@
       cell.className = "day";
       const dateKey = isoDate(YEAR, m, day);
 
+      // Clicking empty area of day opens manual modal
+      cell.addEventListener("click", (ev) => {
+        // prevent day click when clicking an event pill
+        if (ev.target && ev.target.classList && ev.target.classList.contains("event")) return;
+        openManualModal(dateKey);
+      });
+
       const num = document.createElement("div");
       num.className = "num";
       num.textContent = day;
       cell.appendChild(num);
 
-      const todays = evts.filter(e => e.date === dateKey);
+      // show manual first, then AI
+      const todays = evts
+        .filter(e => e.date === dateKey)
+        .sort((a,b) => (a.source === "manual" ? -1 : 1));
 
       todays.slice(0, 3).forEach(e => {
         const pill = document.createElement("div");
         pill.className = "event";
         pill.title = (e.details || e.title || "").trim();
         pill.textContent = e.all_day ? e.title : `${e.start_time || ""} ${e.title}`.trim();
+
+        pill.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          if (e.source === "manual") openManualModal(dateKey);
+          else openAiModal(e);
+        });
+
         cell.appendChild(pill);
       });
 
       if (todays.length > 3) {
         const more = document.createElement("div");
         more.className = "event more";
-        more.textContent = `+${todays.length - 3} more`;
+        more.textContent = `+${todays.length - 3}`;
+        more.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          const lines = todays.map(ev2 => {
+            const timeStr = ev2.all_day ? "All day" : ([ev2.start_time, ev2.end_time].filter(Boolean).join("–") || "");
+            const t = timeStr ? `${timeStr} — ${ev2.title}` : ev2.title;
+            const d = (ev2.details || "").trim();
+            return d ? `${t}\n${d}` : t;
+          }).join("\n\n");
+
+          openAiModal({ id: null, date: dateKey, title: `${dateKey}`, details: lines, all_day: true, start_time: null, end_time: null });
+          modalDelete.disabled = true;
+        });
         cell.appendChild(more);
       }
 
@@ -469,7 +919,6 @@
       thumbsEl.appendChild(el);
     });
   }
-
   function addFiles(files) {
     for (const f of files) {
       if (f.type && f.type.startsWith("image/")) images.push(f);
@@ -477,36 +926,30 @@
     refreshThumbs();
   }
 
-  dropEl.addEventListener("dragover", (e) => { e.preventDefault(); dropEl.style.borderColor = "rgba(37,99,235,.55)"; });
-  dropEl.addEventListener("dragleave", () => { dropEl.style.borderColor = "rgba(11,18,32,.25)"; });
+  dropEl.addEventListener("dragover", (e) => { e.preventDefault(); });
   dropEl.addEventListener("drop", (e) => {
     e.preventDefault();
-    dropEl.style.borderColor = "rgba(11,18,32,.25)";
     addFiles(e.dataTransfer.files);
   });
+
+  imgBtn.addEventListener("click", () => fileEl.click());
   fileEl.addEventListener("change", () => addFiles(fileEl.files));
 
-  clearBtn.addEventListener("click", () => {
+  clearImgsBtn.addEventListener("click", () => {
     images = [];
     fileEl.value = "";
     refreshThumbs();
   });
 
-  wipeBtn.addEventListener("click", () => {
-    saveEvents([]);
-    renderMonth(selectedMonth);
-    setStatus("All events wiped.");
-  });
+  function clamp(n, min, max){ return Math.min(max, Math.max(min, n)); }
+  function prevMonth(){ selectedMonth = clamp(selectedMonth - 1, 0, 11); renderMonthBar(); renderMonth(selectedMonth); }
+  function nextMonth(){ selectedMonth = clamp(selectedMonth + 1, 0, 11); renderMonthBar(); renderMonth(selectedMonth); }
 
-  addBtn.addEventListener("click", async () => {
+  async function addToCalendar() {
     const text = textEl.value.trim();
-    if (!text && images.length === 0) {
-      setStatus("Type something and/or drop an image first.");
-      return;
-    }
+    if (!text && images.length === 0) return;
 
-    addBtn.disabled = true;
-    setStatus("Sending to AI…");
+    setStatus("…");
 
     const fd = new FormData();
     fd.append("text", text);
@@ -516,36 +959,63 @@
       const resp = await fetch("/api/parse", { method: "POST", body: fd });
       const raw = await resp.text();
       let data;
-      try { data = JSON.parse(raw); }
-      catch { throw new Error("Server returned non-JSON: " + raw.slice(0, 200)); }
-
-      if (!resp.ok) {
-        throw new Error(typeof data === "string" ? data : JSON.stringify(data, null, 2));
-      }
+      try { data = JSON.parse(raw); } catch { throw new Error("Server returned non-JSON"); }
+      if (!resp.ok) throw new Error("Request failed");
 
       const normalized = normalizeEvents(data.events || []);
-      if (normalized.length === 0) {
-        setStatus("AI returned no events. Try rephrasing with a clearer date.");
-      } else {
+      if (normalized.length > 0) {
         const evts = loadEvents();
         evts.push(...normalized);
         saveEvents(evts);
         renderMonth(selectedMonth);
-        setStatus(`Added ${normalized.length} day-entry(ies).`);
+        setStatus(`+${normalized.length}`);
+      } else {
+        setStatus("0");
       }
 
       textEl.value = "";
       images = [];
       fileEl.value = "";
       refreshThumbs();
-    } catch (err) {
-      setStatus("Error: " + err.message);
-    } finally {
-      addBtn.disabled = false;
+    } catch {
+      setStatus("Error");
+    }
+  }
+
+  // ✅ Keyboard shortcuts
+  window.addEventListener("keydown", (e) => {
+    if (modalOverlay.classList.contains("open")) {
+      if (e.key === "Escape") { e.preventDefault(); closeModal(); return; }
+      if ((e.key === "d" || e.key === "D")) { e.preventDefault(); deleteActiveEvent(); return; }
+      if (manualMode && (e.key === "s" || e.key === "S") && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault(); saveManualEvent(); return;
+      }
+      return;
+    }
+
+    const el = document.activeElement;
+    const tag = el?.tagName?.toLowerCase();
+    const isTyping = tag === "textarea" || tag === "input";
+
+    // T focuses textbox only when not typing
+    if (!isTyping && (e.key === "t" || e.key === "T")) { e.preventDefault(); textEl.focus(); return; }
+
+    // Month nav only when not typing
+    if (!isTyping) {
+      if (e.key === "ArrowLeft") { e.preventDefault(); prevMonth(); return; }
+      if (e.key === "ArrowRight") { e.preventDefault(); nextMonth(); return; }
+    }
+
+    // ✅ AI send: ONLY Alt/Option + Enter while in textarea
+    if (tag === "textarea" && e.key === "Enter") {
+      if (e.altKey) { e.preventDefault(); addToCalendar(); return; }
+      // Enter / Shift+Enter = newline (do nothing)
+      return;
     }
   });
 
   // init
+  loadEvents();
   renderMonthBar();
   renderDow();
   renderMonth(selectedMonth);
