@@ -157,8 +157,3 @@ server.on("error", (err) => {
     process.exit(1);
   }
 });
-
-app.listen(5176, () => {
-  console.log("✅ Server running at http://localhost:5176");
-  console.log("   Health: http://localhost:5176/api/health");
-});
